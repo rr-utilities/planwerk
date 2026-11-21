@@ -36,7 +36,7 @@
           }
         }
       }
-    }
+    };
   </script>
   <style>
     * {
@@ -106,7 +106,8 @@
       color: #18181B;
     }
 
-    #editor p, #editor div.editor-line {
+    #editor p,
+    #editor div.editor-line {
       margin-bottom: 0.55rem;
     }
 
@@ -120,7 +121,7 @@
       margin-bottom: 0.25rem;
     }
 
-    /* Interaktive To-Do Zeilen im Editor */
+    /* Interaktive To-Do Zeilen im Editor und in den Listen */
     .pult-todo {
       display: flex;
       align-items: flex-start;
@@ -234,7 +235,7 @@
   <!-- Obere ruhige Navigationsleiste -->
   <header class="sticky top-0 z-30 bg-paper/90 backdrop-blur-md border-b border-line">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-3">
-      
+
       <!-- Brand + Schreibtisch-Switcher -->
       <div class="flex items-center gap-4 min-w-0 flex-1">
         <div class="flex items-center gap-2 shrink-0">
@@ -254,18 +255,17 @@
         </button>
       </div>
 
-      <!-- Rechts: Speicherstatus, Geräteerkennung & Einstellungen -->
+      <!-- Rechts: Speicherstatus, Mac <-> iPhone Receiver & Einstellungen -->
       <div class="flex items-center gap-2 shrink-0">
         <span id="save-status" class="hidden md:inline-flex items-center gap-1.5 text-xs text-subtle select-none">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500/80"></span>
           Gespeichert
         </span>
 
-        <!-- Automatische Geräteerkennung & Receiver-Brücke -->
-        <button id="btn-device-bridge" type="button" title="Geräte-Modus & Mac ↔ iPhone Receiver" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200/80 text-ink transition-colors">
+        <button id="btn-device-bridge" type="button" title="Mac Arbeitsplatz ↔ iPhone Receiver (receiver.html)" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200/80 text-ink transition-colors">
           <span id="device-badge-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
           <span id="device-badge-label">Mac</span>
-          <span class="text-subtle">↔</span>
+          <span class="text-subtle">→ iPhone</span>
         </button>
 
         <button id="btn-notify-banner" type="button" class="hidden text-xs font-medium px-2.5 py-1.5 rounded-lg bg-amberSoft text-amberAccent hover:bg-amber-200/70 transition-colors">
@@ -280,7 +280,7 @@
       </div>
     </div>
 
-    <!-- Mobile Ansichten-Umschalter (Nur unter lg sichtbar) -->
+    <!-- Responsive Ansichten-Umschalter unterhalb lg -->
     <div class="lg:hidden border-t border-line/70 bg-paper px-4 py-1.5 flex items-center justify-around gap-1">
       <button type="button" data-mobile-view="editor" class="mobile-tab-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-ink bg-white shadow-xs border border-line/60">
         Schreibtisch
@@ -294,12 +294,12 @@
     </div>
   </header>
 
-  <!-- Hauptbereich: Split-View auf Desktop, fokussierte Einzelansicht auf Mobilgeräten -->
+  <!-- Hauptbereich: Split-View auf Desktop, fokussierte Einzelansicht unter lg -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-    
-    <!-- Linke Spalte: Freier Schreibbereich (7 von 12 Spalten auf Desktop) -->
+
+    <!-- Linke Spalte: Freier Schreibbereich -->
     <section id="panel-editor" class="lg:col-span-7 bg-surface border border-line/80 rounded-2xl p-6 sm:p-8 lg:p-10 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-      
+
       <!-- Schreibtisch-Kopfzeile (Umbenennen, Senden & Löschen) -->
       <div class="flex items-center justify-between gap-2 pb-5 mb-6 border-b border-line/60">
         <div class="flex items-center gap-2 min-w-0 flex-1">
@@ -313,7 +313,7 @@
         </div>
 
         <div class="flex items-center gap-1 shrink-0">
-          <button id="btn-send-desk" type="button" title="Diesen Schreibtisch an iPhone/iPad senden" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-zinc-100 transition-colors">
+          <button id="btn-send-desk" type="button" title="Diesen Schreibtisch an receiver.html / iPhone senden" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-zinc-100 transition-colors">
             <span>↗</span>
             <span class="hidden sm:inline">An iPhone</span>
           </button>
@@ -337,8 +337,8 @@
         <button type="button" data-format="h2" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink font-semibold transition-colors" title="Überschrift 2 (## + Leerzeichen)">H2</button>
         <button type="button" data-format="p" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink transition-colors" title="Normaler Text">Text</button>
         <span class="h-3.5 w-[1px] bg-line mx-1"></span>
-        <button type="button" data-format="bold" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink font-bold transition-colors" title="Fett (Strg+B)">B</button>
-        <button type="button" data-format="italic" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink italic transition-colors" title="Kursiv (Strg+I)">I</button>
+        <button type="button" data-format="bold" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink font-bold transition-colors" title="Fett (Cmd/Strg+B)">B</button>
+        <button type="button" data-format="italic" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink italic transition-colors" title="Kursiv (Cmd/Strg+I)">I</button>
         <span class="h-3.5 w-[1px] bg-line mx-1"></span>
         <button type="button" data-format="ul" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink transition-colors" title="Aufzählung (- + Leerzeichen)">• Liste</button>
         <button type="button" data-format="todo" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink transition-colors" title="Checkbox ([] + Leerzeichen)">☑ Aufgabe</button>
@@ -354,10 +354,10 @@
       ></div>
     </section>
 
-    <!-- Rechte Spalte: Chronologische Erinnerungen & Kalender (5 von 12 Spalten auf Desktop) -->
+    <!-- Rechte Spalte: Chronologische Erinnerungen & Kalender -->
     <aside class="lg:col-span-5 space-y-6">
-      
-      <!-- Desktop-Filter / Ansichtsumschalter für rechte Spalte -->
+
+      <!-- Filter für rechte Spalte -->
       <div class="hidden lg:flex items-center justify-between bg-surface border border-line/80 rounded-xl p-1">
         <button type="button" data-side-filter="both" class="side-filter-btn flex-1 py-1.5 text-xs font-medium rounded-lg bg-zinc-100 text-ink transition-colors">
           Übersicht
@@ -401,8 +401,8 @@
     </aside>
   </main>
 
-  <!-- Floating Selection Action ("Erinnern / Termin" & "An iPhone" bei markiertem Text) -->
-  <div id="selection-toolbar" class="fixed z-40 hidden flex items-center gap-1 bg-ink text-white rounded-full shadow-lg p-1">
+  <!-- Floating Toolbar bei markiertem Text -->
+  <div id="selection-toolbar" class="fixed z-40 hidden items-center gap-1 bg-ink text-white rounded-full shadow-lg p-1">
     <button id="btn-selection-create" type="button" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium hover:bg-zinc-800 transition-all">
       <span class="font-mono text-amber-300">@</span>
       <span>Erinnern / Termin</span>
@@ -483,13 +483,13 @@
     </div>
   </div>
 
-  <!-- Mac ↔ iPhone/iPad Sender & Receiver Modal -->
+  <!-- Mac -> iPhone Receiver Modal (receiver.html Teilen, Link, QR & Download) -->
   <div id="bridge-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/15 backdrop-blur-[1px] p-4">
-    <div class="bg-surface border border-line rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-5 max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="bg-surface border border-line rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-5 max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="bridge-heading">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-base font-semibold text-ink">Mac ↔ iPhone / iPad Brücke</h3>
-          <p id="bridge-detected-info" class="text-xs text-muted mt-0.5">Gerät wird erkannt …</p>
+          <h3 id="bridge-heading" class="text-base font-semibold text-ink">Mac Arbeitsplatz → iPhone Receiver</h3>
+          <p id="bridge-detected-info" class="text-xs text-muted mt-0.5">Mac-Arbeitsplatz aktiv · Teilt gezielt an receiver.html</p>
         </div>
         <button id="btn-close-bridge" type="button" class="p-1 rounded-lg text-muted hover:text-ink hover:bg-zinc-100">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -498,107 +498,64 @@
         </button>
       </div>
 
-      <!-- Geräte-Rolle manuell umschalten (Auto / Mac / iPhone) -->
-      <div class="flex flex-wrap items-center justify-between gap-2 bg-paper border border-line/80 rounded-xl p-2">
-        <span class="text-xs text-muted pl-2">Gerätemodus:</span>
-        <div class="flex gap-1">
-          <button type="button" data-set-device="auto" class="device-mode-btn px-2.5 py-1 rounded-lg text-xs font-medium transition-colors">Auto</button>
-          <button type="button" data-set-device="mac" class="device-mode-btn px-2.5 py-1 rounded-lg text-xs font-medium transition-colors">Mac</button>
-          <button type="button" data-set-device="iphone" class="device-mode-btn px-2.5 py-1 rounded-lg text-xs font-medium transition-colors">iPhone / iPad</button>
-        </div>
-      </div>
-
-      <!-- ANSICHT A: MAC SENDER-BEREICH -->
-      <div id="bridge-mac-view" class="space-y-4">
-        <div class="bg-paper border border-line rounded-xl p-4 space-y-3">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wider text-muted">Schritt 1 · Receiver auf iPhone öffnen</p>
-              <p class="text-xs text-ink mt-1 leading-relaxed">
-                Öffne diesen Receiver-Link auf deinem iPhone oder iPad (per <strong>AirDrop</strong>, <strong>Nachrichten</strong> oder Kamera-Scan). Dort wird <code class="font-mono">pult.</code> automatisch als Empfänger eingerichtet.
-              </p>
-            </div>
-            <!-- Generierter QR-Code SVG -->
-            <div id="receiver-qr-box" class="shrink-0 w-24 h-24 bg-white border border-line rounded-xl p-1.5 flex items-center justify-center" title="Mit iPhone-Kamera scannen"></div>
+      <!-- Schritt 1: Receiver-Link & QR-Code -->
+      <div class="bg-paper border border-line rounded-xl p-4 space-y-3">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted">Schritt 1 · receiver.html auf iPhone öffnen</p>
+            <p class="text-xs text-ink mt-1 leading-relaxed">
+              Sende den Link per <strong>AirDrop</strong> oder <strong>Nachrichten</strong> ans iPhone oder scanne den QR-Code. Auf dem iPhone erscheint nur eine klare Datumsliste mit allem Geteilten.
+            </p>
           </div>
+          <div id="receiver-qr-box" class="shrink-0 w-24 h-24 bg-white border border-line rounded-xl p-1.5 flex items-center justify-center" title="Mit iPhone-Kamera scannen"></div>
+        </div>
 
+        <div class="flex items-center gap-2">
+          <input id="receiver-link-input" type="text" readonly class="flex-1 text-xs font-mono bg-white border border-line rounded-lg px-2.5 py-2 text-muted outline-none" />
+          <button id="btn-copy-receiver-link" type="button" class="px-3 py-2 rounded-lg text-xs font-medium border border-line bg-white hover:bg-zinc-50 text-ink shrink-0">
+            Kopieren
+          </button>
+          <button id="btn-share-receiver-link" type="button" class="px-3 py-2 rounded-lg text-xs font-medium bg-ink text-white hover:bg-zinc-800 shrink-0">
+            AirDrop / Teilen
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-line/60">
+          <span class="text-[11px] text-muted">Separate iPhone-Datei (<code class="font-mono">receiver.html</code>):</span>
           <div class="flex items-center gap-2">
-            <input id="receiver-link-input" type="text" readonly class="flex-1 text-xs font-mono bg-white border border-line rounded-lg px-2.5 py-2 text-muted outline-none" />
-            <button id="btn-copy-receiver-link" type="button" class="px-3 py-2 rounded-lg text-xs font-medium border border-line bg-white hover:bg-zinc-50 text-ink shrink-0">
-              Kopieren
+            <button id="btn-open-receiver-tab" type="button" class="px-2.5 py-1 rounded-lg text-[11px] font-medium border border-line bg-white hover:bg-zinc-50 text-ink">
+              In neuem Tab öffnen
             </button>
-            <button id="btn-share-receiver-link" type="button" class="px-3 py-2 rounded-lg text-xs font-medium bg-ink text-white hover:bg-zinc-800 shrink-0">
-              AirDrop / Teilen
-            </button>
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <p class="text-xs font-semibold text-ink">Schritt 2 · Inhalte direkt ans iPhone schicken</p>
-          <p class="text-xs text-muted leading-relaxed">
-            Klicke in deinem Schreibtisch auf <strong>↗ An iPhone</strong> (oben am Schreibtisch, an einer markierten Textstelle oder in einer Erinnerung), um ein Paket für dein iPhone zu senden.
-          </p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-            <button id="btn-quick-send-desk" type="button" class="py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink text-left flex items-center justify-between">
-              <span>Aktuellen Schreibtisch senden</span>
-              <span>↗</span>
-            </button>
-            <button id="btn-quick-send-upcoming" type="button" class="py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink text-left flex items-center justify-between">
-              <span>Alle Erinnerungen senden</span>
-              <span>↗</span>
+            <button id="btn-download-receiver-html" type="button" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-zinc-900 hover:bg-zinc-800 text-white">
+              receiver.html laden
             </button>
           </div>
         </div>
       </div>
 
-      <!-- ANSICHT B: IPHONE / IPAD RECEIVER-BEREICH -->
-      <div id="bridge-ios-view" class="hidden space-y-4">
-        <div class="bg-paper border border-line rounded-xl p-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-ink">iPhone / iPad Receiver aktiv</span>
-            <span id="ios-pairing-badge" class="font-mono text-[11px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">Bereit</span>
-          </div>
-
-          <!-- Schritt 1: Als App installieren -->
-          <div id="ios-install-guide" class="text-xs text-muted bg-white border border-line/80 rounded-lg p-3 space-y-1">
-            <p class="font-medium text-ink">1. Als echte App installieren (für Mitteilungen nötig)</p>
-            <p class="leading-relaxed">Tippe in Safari unten auf <strong>Teilen (□↑)</strong> und wähle <strong>„Zum Home-Bildschirm“</strong>. Öffne danach <strong>pult.</strong> über das neue App-Icon.</p>
-          </div>
-
-          <!-- Schritt 2: Mitteilungen aktivieren -->
-          <div class="flex items-center justify-between gap-2 bg-white border border-line/80 rounded-lg p-3">
-            <div>
-              <p class="text-xs font-medium text-ink">2. Sperrbildschirm-Mitteilungen</p>
-              <p id="ios-push-status" class="text-[11px] text-muted">Erlaube Mitteilungen für eingehende Mac-Sendungen.</p>
-            </div>
-            <button id="btn-ios-enable-notify" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-ink text-white hover:bg-zinc-800 shrink-0">
-              Erlauben
-            </button>
-          </div>
-        </div>
-
-        <!-- Eingehende Sendungen / Posteingang -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-ink">Empfangene Sendungen vom Mac</span>
-            <button id="btn-simulate-receive" type="button" class="text-[11px] text-muted hover:text-ink underline">
-              Test-Empfang simulieren
-            </button>
-          </div>
-          <div id="received-log-list" class="space-y-1.5 text-xs text-muted">
-            <p class="py-2 text-subtle">Noch keine Sendungen empfangen.</p>
-          </div>
+      <!-- Schritt 2: Schnellversand vom Mac -->
+      <div class="space-y-2">
+        <p class="text-xs font-semibold text-ink">Schritt 2 · Gezielt vom Mac an den Receiver senden</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+          <button id="btn-quick-send-desk" type="button" class="py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink text-left flex items-center justify-between">
+            <span>Aktuellen Schreibtisch senden</span>
+            <span>↗</span>
+          </button>
+          <button id="btn-quick-send-upcoming" type="button" class="py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink text-left flex items-center justify-between">
+            <span>Alle offenen Einträge senden</span>
+            <span>↗</span>
+          </button>
         </div>
       </div>
 
-      <!-- Optionales Push-Relay (Cloudflare Worker) für Hintergrund-Pushs -->
+      <!-- Optionales Push-Relay -->
       <details class="border-t border-line/70 pt-3 text-xs">
         <summary class="cursor-pointer font-medium text-muted hover:text-ink select-none">
-          Optional: Hintergrund-Push-Relay verbinden (wenn iPhone-App geschlossen ist)
+          Optional: Push-Relay-URL für Hintergrund-Mitteilungen
         </summary>
         <div class="mt-3 space-y-2.5 text-muted">
           <p class="leading-relaxed">
-            Ohne Server werden Sendungen sofort übernommen, sobald du den Link auf dem iPhone öffnest (oder im selben Browser in einem zweiten Tab). Für echte Hintergrund-Pushs bei geschlossener App kannst du hier eine Cloudflare-Worker-URL hinterlegen:
+            Im selben Browser wird über <code class="font-mono">BroadcastChannel</code> und <code class="font-mono">localStorage</code> sofort zugestellt; per Link/AirDrop reist das Paket direkt im Hash an <code class="font-mono">receiver.html</code>. Optional kannst du hier einen Relay-Endpunkt hinterlegen:
           </p>
           <div class="flex gap-2">
             <input id="relay-url-input" type="url" placeholder="https://pult-relay.dein-name.workers.dev" class="flex-1 px-2.5 py-1.5 text-xs font-mono bg-paper border border-line rounded-lg text-ink outline-none" />
@@ -607,7 +564,7 @@
             </button>
           </div>
           <button id="btn-copy-worker-code" type="button" class="text-[11px] text-ink underline hover:text-amberAccent">
-            Fertigen 12-Zeilen Cloudflare-Worker-Code kopieren
+            Cloudflare-Worker-Vorlage kopieren
           </button>
         </div>
       </details>
@@ -645,8 +602,8 @@
 
       <!-- Lokale Sicherung & Synchronisation (JSON Export/Import) -->
       <div class="space-y-2.5 pb-4 border-b border-line/70">
-        <p class="text-sm font-medium text-ink">Lokale Datensicherung & Transfer</p>
-        <p class="text-xs text-muted leading-relaxed">Alle Schreibtische, Notizen, Erinnerungen und Termine werden automatisch lokal gespeichert. Exportiere deine Daten als Datei für Backups oder andere Geräte.</p>
+        <p class="text-sm font-medium text-ink">Lokale Datensicherung</p>
+        <p class="text-xs text-muted leading-relaxed">Alle Schreibtische, Notizen, Erinnerungen und Termine werden automatisch lokal im <code class="font-mono">localStorage</code> gespeichert.</p>
         <div class="grid grid-cols-2 gap-2 pt-1">
           <button id="btn-export-json" type="button" class="py-2 px-3 rounded-xl text-xs font-medium bg-ink text-white hover:bg-zinc-800 transition-colors">
             Backup exportieren
@@ -668,7 +625,7 @@
     </div>
   </div>
 
-  <!-- Bestätigungs-Dialog (ersetzt window.confirm) -->
+  <!-- Bestätigungs-Dialog -->
   <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/15 backdrop-blur-[1px] p-4">
     <div class="bg-surface border border-line rounded-2xl shadow-xl w-full max-w-sm p-5 space-y-4">
       <h4 id="confirm-title" class="text-sm font-semibold text-ink">Bist du sicher?</h4>
@@ -685,96 +642,34 @@
 
   <script>
     /**
-     * pult. – Minimalistischer Digitaler Schreibtisch (PWA + Mac <-> iPhone/iPad Receiver Bridge)
+     * pult. – Mac Arbeitsplatz (Minimalistischer Digitaler Schreibtisch)
+     * Verwaltet Schreibtische, freien Schreibbereich, inline @-Erinnerungen/Ereignisse,
+     * chronologische Datumslisten sowie das Teilen an receiver.html.
      */
 
-    const STORAGE_KEY = 'pult_state_v1';
-    const DEVICE_OVERRIDE_KEY = 'pult_device_mode_override';
+    const STORAGE_KEY = 'pult_mac_state_v1';
     const BRIDGE_TRANSFER_KEY = 'pult_bridge_last_packet';
+    const broadcastChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('pult_mac_iphone_channel') : null;
 
     // =========================================================================
-    // 1. AUTOMATISCHE GERÄTEERKENNUNG & MODUS-ROUTING (Top-Level Definitionen)
-    // =========================================================================
-    function detectDevicePlatform() {
-      const ua = navigator.userAgent || '';
-      const platform = navigator.platform || '';
-      const maxTouch = navigator.maxTouchPoints || 0;
-
-      const isIPhone = /iPhone|iPod/i.test(ua);
-      // iPadOS 13+ meldet sich als MacIntel mit TouchPoints > 1
-      const isIPad = /iPad/i.test(ua) || (platform === 'MacIntel' && maxTouch > 1);
-      const isAndroidMobile = /Android/i.test(ua);
-      const isMac = /Mac/i.test(platform) && !isIPad;
-
-      if (isIPhone) return { mode: 'iphone', label: 'iPhone', detail: 'iPhone erkannt · Receiver- & Mobilmodus aktiv' };
-      if (isIPad) return { mode: 'iphone', label: 'iPad', detail: 'iPad erkannt · Receiver- & Tabletmodus aktiv' };
-      if (isAndroidMobile) return { mode: 'iphone', label: 'Mobil', detail: 'Mobiles Gerät erkannt · Receiver-Modus aktiv' };
-      if (isMac) return { mode: 'mac', label: 'Mac', detail: 'macOS erkannt · Sender- & Schreibtischmodus aktiv' };
-      return { mode: 'mac', label: 'Desktop', detail: 'Desktop erkannt · Sender- & Schreibtischmodus aktiv' };
-    }
-
-    const detectedDevice = detectDevicePlatform();
-
-    function getDeviceOverride() {
-      try {
-        const val = localStorage.getItem(DEVICE_OVERRIDE_KEY);
-        if (val === 'mac' || val === 'iphone' || val === 'auto') return val;
-      } catch (e) {}
-      return 'auto';
-    }
-
-    function setDeviceOverride(mode) {
-      try {
-        localStorage.setItem(DEVICE_OVERRIDE_KEY, mode);
-      } catch (e) {}
-      if (typeof state !== 'undefined' && state) {
-        state.deviceOverride = mode === 'auto' ? null : mode;
-      }
-    }
-
-    function getEffectiveDeviceMode() {
-      // 1. URL-Parameter prüfen (?mode=receiver | ?mode=sender | ?pair=...)
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const urlMode = (params.get('mode') || '').toLowerCase();
-        if (urlMode === 'receiver' || urlMode === 'iphone' || urlMode === 'ios') return 'iphone';
-        if (urlMode === 'sender' || urlMode === 'mac') return 'mac';
-        if (params.get('pair')) return 'iphone';
-      } catch (e) {}
-
-      // 2. Manueller Nutzer-Override aus localStorage
-      const override = getDeviceOverride();
-      if (override === 'mac' || override === 'iphone') return override;
-
-      // 3. Automatische Plattform-Erkennung
-      return detectedDevice.mode;
-    }
-
-    // Alias für eventuelle Aufrufe
-    function getDeviceMode() {
-      return getEffectiveDeviceMode();
-    }
-
-    // =========================================================================
-    // 2. PWA MANIFEST, APPLE-TOUCH-ICON & SERVICE WORKER (Sandbox-sicher)
+    // 1. PWA MANIFEST, ICON & SERVICE WORKER (FEHLERSICHER)
     // =========================================================================
     function setupPWA() {
       try {
-        const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#18181B"/><text x="256" y="318" font-family="-apple-system, BlinkMacSystemFont, Inter, sans-serif" font-size="185" font-weight="600" fill="#FBFBF9" text-anchor="middle" letter-spacing="-6">pult.</text></svg>`;
+        const iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#18181B"/><text x="256" y="318" font-family="-apple-system, BlinkMacSystemFont, Inter, sans-serif" font-size="185" font-weight="600" fill="#FBFBF9" text-anchor="middle" letter-spacing="-6">pult.</text></svg>';
         const iconDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSvg);
 
         const touchIcon = document.getElementById('apple-touch-icon-link');
         if (touchIcon) touchIcon.href = iconDataUrl;
 
-        const baseHref = window.location.href.startsWith('http')
-          ? window.location.href.split('#')[0]
-          : '/';
+        const isHttp = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+        const startUrl = isHttp ? window.location.href.split('#')[0] : './index.html';
 
         const manifestObj = {
           name: 'pult. – Digitaler Schreibtisch',
           short_name: 'pult.',
-          description: 'Minimalistische Produktivitäts-App für Notizen, Erinnerungen und Kalender.',
-          start_url: baseHref,
+          description: 'Minimalistischer Mac-Arbeitsplatz für Notizen, Erinnerungen und Kalender.',
+          start_url: startUrl,
           display: 'standalone',
           background_color: '#FBFBF9',
           theme_color: '#FBFBF9',
@@ -788,47 +683,27 @@
         const manifestUrl = URL.createObjectURL(manifestBlob);
         const manifestLink = document.getElementById('pwa-manifest-link');
         if (manifestLink) manifestLink.href = manifestUrl;
-      } catch (e) {
-        // In restriktiven Preview-Sandboxes still ignorieren
-      }
 
-      try {
-        if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
-          const swCode = `
-            self.addEventListener('install', (e) => self.skipWaiting());
-            self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-            self.addEventListener('push', (event) => {
-              let data = { title: 'pult.', body: 'Neue Sendung vom Mac' };
-              try { if (event.data) data = event.data.json(); } catch (e) {}
-              event.waitUntil(
-                self.registration.showNotification(data.title || 'pult.', {
-                  body: data.body || '',
-                  tag: 'pult-receiver'
-                })
-              );
-            });
-            self.addEventListener('notificationclick', (event) => {
-              event.notification.close();
-              event.waitUntil(clients.openWindow('/'));
-            });
-          `;
+        if ('serviceWorker' in navigator && isHttp && window.location.origin !== 'null') {
+          const swCode = [
+            'self.addEventListener("install", () => self.skipWaiting());',
+            'self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));'
+          ].join('\n');
           const swBlob = new Blob([swCode], { type: 'application/javascript' });
           const swUrl = URL.createObjectURL(swBlob);
           navigator.serviceWorker.register(swUrl).catch(() => {});
         }
-      } catch (e) {
-        // Blob-SW wird in manchen Browsern/Sandboxes nicht erlaubt -> kein Fehler
+      } catch (err) {
+        // In restriktiven Preview-Umgebungen ohne Fehler fortfahren
       }
     }
 
     // =========================================================================
-    // 3. DATUMS-HELFER & INITIALER ZUSTAND
+    // 2. DATUMS-HELFER & INITIALER ZUSTAND
     // =========================================================================
     function getTodayISO() {
       const now = new Date();
-      if (now.getFullYear() < 2026) {
-        return '2026-11-21';
-      }
+      if (now.getFullYear() < 2026) return '2026-11-21';
       return formatDateISO(now);
     }
 
@@ -841,8 +716,7 @@
 
     function addDaysISO(isoDate, days) {
       const [y, m, d] = isoDate.split('-').map(Number);
-      const dt = new Date(y, m - 1, d);
-      dt.setDate(dt.getDate() + days);
+      const dt = new Date(y, m - 1, d + days);
       return formatDateISO(dt);
     }
 
@@ -880,11 +754,8 @@
       return {
         activeDeskId: 'desk_privat',
         showCompleted: false,
-        deviceId: generateId('dev'),
-        pairedMacId: null,
-        deviceOverride: null,
+        deviceId: generateId('mac'),
         relayUrl: '',
-        receivedLog: [],
         entries: {
           [e1]: {
             id: e1,
@@ -946,7 +817,7 @@
           {
             id: 'desk_privat',
             name: 'Privat',
-            content: `<h1>Privat</h1><p>Ein ruhiger Ort für alles, was im Alltag ansteht. Tippe einfach drauflos oder nutze <code style="font-family:monospace;background:#F4F4F5;padding:1px 5px;border-radius:4px;">@</code> für eine direkte Erinnerung.</p><h2>Nächste Schritte</h2><p>Dringend erledigen: <span class="pult-chip" contenteditable="false" data-entry-id="${e1}" data-type="reminder">@ Zahnarzt anrufen · 23.11.2026 · 09:00</span></p><p>Morgen auf dem Heimweg <span class="pult-chip" contenteditable="false" data-entry-id="${e2}" data-type="reminder">@ Paket abholen · 24.11.2026 · 11:00</span> bei der Poststelle.</p><p>Kontrolltermin im Kalender: <span class="pult-chip" contenteditable="false" data-entry-id="${e3}" data-type="event">@ Zahnarzt · 23.11.2026 · 09:00–10:00</span></p><h2>Einkauf &amp; Haushalt</h2><div class="pult-todo"><input type="checkbox" class="pult-todo-checkbox"><div class="pult-todo-text">Kaffeebohnen und Hafermilch besorgen</div></div><div class="pult-todo"><input type="checkbox" class="pult-todo-checkbox"><div class="pult-todo-text">Blumen auf dem Balkon gießen</div></div>`
+            content: `<h1>Privat</h1><p>Ein ruhiger Schreibtisch für Notizen, Erinnerungen und Termine. Tippe <code style="font-family:monospace;background:#F4F4F5;padding:1px 5px;border-radius:4px;">@</code> für einen neuen Eintrag.</p><h2>Nächste Schritte</h2><p>Dringend erledigen: <span class="pult-chip" contenteditable="false" data-entry-id="${e1}" data-type="reminder">@ Zahnarzt anrufen · 23.11.2026 · 09:00</span></p><p>Morgen auf dem Heimweg <span class="pult-chip" contenteditable="false" data-entry-id="${e2}" data-type="reminder">@ Paket abholen · 24.11.2026 · 11:00</span> bei der Poststelle.</p><p>Termin im Kalender: <span class="pult-chip" contenteditable="false" data-entry-id="${e3}" data-type="event">@ Zahnarzt · 23.11.2026 · 09:00–10:00</span></p><h2>Einkauf &amp; Haushalt</h2><div class="pult-todo"><input type="checkbox" class="pult-todo-checkbox"><div class="pult-todo-text">Kaffeebohnen und Hafermilch besorgen</div></div><div class="pult-todo"><input type="checkbox" class="pult-todo-checkbox"><div class="pult-todo-text">Blumen auf dem Balkon gießen</div></div>`
           },
           {
             id: 'desk_schule',
@@ -979,7 +850,7 @@
           parsed.entries = {};
         }
         if (!parsed.deviceId) {
-          parsed.deviceId = generateId('dev');
+          parsed.deviceId = generateId('mac');
         }
         return parsed;
       } catch (err) {
@@ -987,11 +858,10 @@
       }
     }
 
-    // Globaler App State
     let state = loadState();
 
     // =========================================================================
-    // 4. DOM REFERENZEN & SPEICHER-FUNKTION
+    // 3. DOM REFERENZEN & SPEICHER-FUNKTION
     // =========================================================================
     const deskTabsEl = document.getElementById('desk-tabs');
     const deskTitleInput = document.getElementById('desk-title-input');
@@ -1015,16 +885,16 @@
     function saveState(immediate = false) {
       const statusEl = document.getElementById('save-status');
       if (statusEl) {
-        statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Speichert …`;
+        statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Speichert …';
       }
 
       const commit = () => {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
           if (statusEl) {
-            statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500/80"></span> Gespeichert`;
+            statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500/80"></span> Gespeichert';
           }
-        } catch (e) {
+        } catch (err) {
           showToast('Speicherfehler', 'Lokaler Speicherplatz ist voll oder blockiert.');
         }
       };
@@ -1038,7 +908,7 @@
     }
 
     function escapeHTML(str) {
-      return String(str)
+      return String(str || '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -1057,25 +927,29 @@
       temp.select();
       try {
         document.execCommand('copy');
-      } catch (e) {}
+      } catch (err) {}
       document.body.removeChild(temp);
     }
 
     // =========================================================================
-    // 5. MAC <-> IPHONE / IPAD RECEIVER-BRÜCKE & GERÄTE-UI
+    // 4. MAC -> IPHONE RECEIVER (receiver.html) & TEILEN
     // =========================================================================
     function encodePayloadBase64(obj) {
       const json = JSON.stringify(obj);
       return btoa(unescape(encodeURIComponent(json)));
     }
 
-    function decodePayloadBase64(str) {
-      const json = decodeURIComponent(escape(atob(str)));
-      return JSON.parse(json);
-    }
-
     function buildReceiverUrl(packet = null) {
-      const baseUrl = window.location.href.split('?')[0].split('#')[0];
+      const isHttp = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+      let baseUrl = 'receiver.html';
+      if (isHttp && window.location.origin && window.location.origin !== 'null') {
+        const currentPath = window.location.pathname || '/';
+        const receiverPath = currentPath.endsWith('/')
+          ? `${currentPath}receiver.html`
+          : currentPath.replace(/[^/]*$/, 'receiver.html');
+        baseUrl = `${window.location.origin}${receiverPath}`;
+      }
+
       const macId = state.deviceId || generateId('mac');
       const params = new URLSearchParams();
       params.set('mode', 'receiver');
@@ -1088,6 +962,507 @@
         packet
       };
       return `${baseUrl}?${params.toString()}#receive=${encodePayloadBase64(payload)}`;
+    }
+
+    function generateStandaloneReceiverHTML() {
+      const macId = state.deviceId || generateId('mac');
+      const safeMacLiteral = JSON.stringify(macId);
+      const endScriptTag = '</' + 'script>';
+
+      return `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="pult. iPhone" />
+  <meta name="theme-color" content="#FBFBF9" />
+  <title>pult. · Geteiltes (iPhone)</title>
+  <script src="https://cdn.tailwindcss.com">${endScriptTag}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          colors: {
+            paper: '#FBFBF9',
+            surface: '#FFFFFF',
+            ink: '#18181B',
+            muted: '#71717A',
+            subtle: '#A1A1AA',
+            line: '#E4E4E7',
+          }
+        }
+      }
+    };
+  ${endScriptTag}
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: #FBFBF9;
+      color: #18181B;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .pult-check {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 1.05rem;
+      height: 1.05rem;
+      min-width: 1.05rem;
+      margin-top: 0.15rem;
+      border: 1.5px solid #A1A1AA;
+      border-radius: 5px;
+      background-color: #FFFFFF;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .pult-check:checked {
+      background-color: #18181B;
+      border-color: #18181B;
+    }
+    .pult-check:checked::after {
+      content: "";
+      width: 0.32rem;
+      height: 0.55rem;
+      border: solid #FFFFFF;
+      border-width: 0 1.75px 1.75px 0;
+      transform: rotate(45deg);
+      margin-bottom: 1px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-paper text-ink">
+  <header class="sticky top-0 z-20 bg-paper/90 backdrop-blur-md border-b border-line">
+    <div class="max-w-xl mx-auto px-4 py-3.5 flex items-center justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-semibold tracking-tight text-lg text-ink">pult.</span>
+          <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-200/70 text-muted">iPhone · Geteiltes</span>
+        </div>
+        <p id="pair-status-label" class="text-[11px] text-muted mt-0.5">Ein Schreibtisch für alles vom Mac</p>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button id="btn-enable-notify" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-ink transition-colors">
+          Mitteilungen
+        </button>
+        <button id="btn-demo-item" type="button" title="Beispiel-Sendung hinzufügen" class="px-2.5 py-1.5 rounded-lg text-xs font-medium border border-line bg-surface hover:bg-zinc-50 text-muted hover:text-ink transition-colors">
+          + Test
+        </button>
+      </div>
+    </div>
+    <div class="max-w-xl mx-auto px-4 pb-2.5 flex items-center gap-1.5 overflow-x-auto">
+      <button type="button" data-filter="all" class="filter-pill px-3 py-1 rounded-full text-xs font-medium bg-ink text-white">Alle</button>
+      <button type="button" data-filter="reminder" class="filter-pill px-3 py-1 rounded-full text-xs font-medium bg-surface border border-line text-muted hover:text-ink">Erinnerungen</button>
+      <button type="button" data-filter="event" class="filter-pill px-3 py-1 rounded-full text-xs font-medium bg-surface border border-line text-muted hover:text-ink">Kalender</button>
+      <button type="button" data-filter="note" class="filter-pill px-3 py-1 rounded-full text-xs font-medium bg-surface border border-line text-muted hover:text-ink">Notizen</button>
+    </div>
+  </header>
+
+  <main class="max-w-xl mx-auto px-4 py-6">
+    <div id="shared-timeline" class="space-y-6"></div>
+  </main>
+
+  <div id="toast-box" class="fixed bottom-5 left-4 right-4 max-w-xl mx-auto z-30 pointer-events-none space-y-2"></div>
+
+  <script>
+    const SHARED_STORAGE_KEY = 'pult_iphone_shared_v1';
+    const BRIDGE_TRANSFER_KEY = 'pult_bridge_last_packet';
+    const broadcastChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('pult_mac_iphone_channel') : null;
+
+    let activeFilter = 'all';
+    let sharedState = loadSharedState();
+
+    function getTodayISO() {
+      const now = new Date();
+      if (now.getFullYear() < 2026) return '2026-11-21';
+      return toISO(now);
+    }
+
+    function toISO(dt) {
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const d = String(dt.getDate()).padStart(2, '0');
+      return y + '-' + m + '-' + d;
+    }
+
+    function addDaysISO(iso, days) {
+      const [y, m, d] = iso.split('-').map(Number);
+      const dt = new Date(y, m - 1, d + days);
+      return toISO(dt);
+    }
+
+    function formatHeading(iso, todayISO) {
+      const [y, m, d] = iso.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+      const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+      const label = days[dt.getDay()] + ', ' + d + '. ' + months[m - 1];
+      if (iso === todayISO) return label + ' · Heute';
+      if (iso === addDaysISO(todayISO, 1)) return label + ' · Morgen';
+      return label;
+    }
+
+    function escapeText(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function showToast(title, body) {
+      const box = document.getElementById('toast-box');
+      const el = document.createElement('div');
+      el.className = 'pointer-events-auto bg-ink text-white rounded-2xl px-4 py-3 shadow-lg flex items-start justify-between gap-3 text-xs';
+      el.innerHTML = '<div><p class="font-semibold">' + escapeText(title) + '</p><p class="text-zinc-300 mt-0.5">' + escapeText(body) + '</p></div><button type="button" class="text-zinc-400 hover:text-white">✕</button>';
+      el.querySelector('button').addEventListener('click', () => el.remove());
+      box.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }
+
+    function notifyUser(title, body) {
+      showToast(title, body);
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try { new Notification('pult. · ' + title, { body }); } catch (err) {}
+      }
+    }
+
+    function createDefaultSharedState() {
+      return {
+        pairedMac: ${safeMacLiteral},
+        items: [
+          {
+            id: 'sh_1',
+            kind: 'reminder',
+            title: 'Zahnarzt anrufen',
+            date: '2026-11-23',
+            time: '09:00',
+            desk: 'Privat',
+            completed: false
+          },
+          {
+            id: 'sh_2',
+            kind: 'event',
+            title: 'Besprechung',
+            date: '2026-11-23',
+            time: '14:00–15:30',
+            desk: 'Projekte',
+            completed: false
+          },
+          {
+            id: 'sh_3',
+            kind: 'note',
+            title: 'Packliste & Unterlagen für unterwegs vom Mac geteilt',
+            date: '2026-11-24',
+            time: '',
+            desk: 'Privat',
+            completed: false
+          }
+        ]
+      };
+    }
+
+    function loadSharedState() {
+      try {
+        const raw = localStorage.getItem(SHARED_STORAGE_KEY);
+        if (!raw) return createDefaultSharedState();
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed.items)) return createDefaultSharedState();
+        return parsed;
+      } catch (err) {
+        return createDefaultSharedState();
+      }
+    }
+
+    function saveSharedState() {
+      try {
+        localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(sharedState));
+      } catch (err) {}
+    }
+
+    function stripHtmlToText(html) {
+      const div = document.createElement('div');
+      div.innerHTML = html || '';
+      return (div.textContent || div.innerText || '').replace(/\\s+/g, ' ').trim();
+    }
+
+    function ingestPacket(packet, fromMac) {
+      if (!packet) return;
+      if (fromMac) sharedState.pairedMac = fromMac;
+      const fallbackDate = getTodayISO();
+
+      if (packet.kind === 'entry' && packet.data) {
+        const d = packet.data;
+        sharedState.items.unshift({
+          id: 'sh_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          kind: d.type === 'event' ? 'event' : 'reminder',
+          title: d.title || 'Eintrag',
+          date: d.date || fallbackDate,
+          time: d.type === 'event' ? (d.endTime ? d.startTime + '–' + d.endTime : d.startTime) : (d.startTime || '09:00'),
+          desk: packet.deskName || 'Privat',
+          completed: !!d.completed
+        });
+        notifyUser(d.type === 'event' ? 'Kalender geteilt' : 'Erinnerung geteilt', d.title || 'Neuer Eintrag');
+      } else if (packet.kind === 'snippet' && packet.text) {
+        sharedState.items.unshift({
+          id: 'sh_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          kind: 'note',
+          title: packet.text,
+          date: fallbackDate,
+          time: '',
+          desk: 'Mac',
+          completed: false
+        });
+        notifyUser('Notiz geteilt', packet.text);
+      } else if (packet.kind === 'desk' && packet.data) {
+        if (Array.isArray(packet.entries) && packet.entries.length > 0) {
+          packet.entries.forEach(function(ent) {
+            sharedState.items.unshift({
+              id: 'sh_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+              kind: ent.type === 'event' ? 'event' : 'reminder',
+              title: ent.title || 'Eintrag',
+              date: ent.date || fallbackDate,
+              time: ent.type === 'event' ? (ent.endTime ? ent.startTime + '–' + ent.endTime : ent.startTime) : (ent.startTime || '09:00'),
+              desk: packet.data.name || 'Schreibtisch',
+              completed: !!ent.completed
+            });
+          });
+        }
+        const plain = stripHtmlToText(packet.data.content);
+        if (plain) {
+          sharedState.items.unshift({
+            id: 'sh_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            kind: 'note',
+            title: plain.slice(0, 220),
+            date: fallbackDate,
+            time: '',
+            desk: packet.data.name || 'Schreibtisch',
+            completed: false
+          });
+        }
+        notifyUser('Schreibtisch geteilt', packet.data.name || 'Schreibtisch');
+      } else if (packet.kind === 'bundle' && Array.isArray(packet.entries)) {
+        packet.entries.forEach(function(ent) {
+          sharedState.items.unshift({
+            id: 'sh_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            kind: ent.type === 'event' ? 'event' : 'reminder',
+            title: ent.title || 'Eintrag',
+            date: ent.date || fallbackDate,
+            time: ent.type === 'event' ? (ent.endTime ? ent.startTime + '–' + ent.endTime : ent.startTime) : (ent.startTime || '09:00'),
+            desk: 'Mac',
+            completed: !!ent.completed
+          });
+        });
+        notifyUser('Einträge geteilt', packet.entries.length + ' Einträge übernommen');
+      }
+
+      saveSharedState();
+      renderTimeline();
+    }
+
+    function consumeIncomingUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const pair = params.get('pair');
+      if (pair) sharedState.pairedMac = pair;
+
+      const hash = window.location.hash || '';
+      if (hash.indexOf('#receive=') === 0) {
+        try {
+          const encoded = hash.slice('#receive='.length);
+          const json = decodeURIComponent(escape(atob(encoded)));
+          const payload = JSON.parse(json);
+          if (payload && payload.packet) {
+            ingestPacket(payload.packet, payload.fromMac);
+          }
+        } catch (err) {}
+      }
+      saveSharedState();
+    }
+
+    function renderBadge(kind) {
+      if (kind === 'reminder') {
+        return '<span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">Erinnerung</span>';
+      }
+      if (kind === 'event') {
+        return '<span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-100 text-blue-900">Kalender</span>';
+      }
+      return '<span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-200/80 text-zinc-700">Notiz</span>';
+    }
+
+    function renderTimeline() {
+      const container = document.getElementById('shared-timeline');
+      const todayISO = getTodayISO();
+
+      const filtered = sharedState.items.filter(function(item) {
+        if (activeFilter === 'all') return true;
+        return item.kind === activeFilter;
+      });
+
+      const dates = new Set();
+      for (let i = 0; i < 10; i++) dates.add(addDaysISO(todayISO, i));
+      filtered.forEach(function(item) { if (item.date) dates.add(item.date); });
+      const sortedDates = Array.from(dates).sort();
+
+      container.innerHTML = '';
+      sortedDates.forEach(function(dateISO) {
+        const dayItems = filtered.filter(function(i) { return i.date === dateISO; });
+        const block = document.createElement('section');
+
+        const h2 = document.createElement('h2');
+        h2.className = dayItems.length > 0
+          ? 'text-xs font-semibold text-ink mb-2.5 tracking-tight'
+          : 'text-xs font-normal text-subtle py-1';
+        h2.textContent = formatHeading(dateISO, todayISO);
+        block.appendChild(h2);
+
+        if (dayItems.length > 0) {
+          const list = document.createElement('div');
+          list.className = 'space-y-2';
+
+          dayItems.forEach(function(item) {
+            const card = document.createElement('div');
+            card.className = 'bg-surface border border-line/80 rounded-xl px-3.5 py-3 flex items-start justify-between gap-3';
+
+            const left = document.createElement('div');
+            left.className = 'flex items-start gap-2.5 min-w-0 flex-1';
+
+            if (item.kind === 'reminder') {
+              const cb = document.createElement('input');
+              cb.type = 'checkbox';
+              cb.checked = !!item.completed;
+              cb.className = 'pult-check';
+              cb.addEventListener('change', function() {
+                item.completed = cb.checked;
+                saveSharedState();
+                renderTimeline();
+              });
+              left.appendChild(cb);
+            }
+
+            const textWrap = document.createElement('div');
+            textWrap.className = 'min-w-0 flex-1';
+
+            const metaRow = document.createElement('div');
+            metaRow.className = 'flex flex-wrap items-center gap-1.5 mb-1';
+            metaRow.innerHTML = renderBadge(item.kind) +
+              (item.time ? '<span class="font-mono text-xs text-muted">' + escapeText(item.time) + '</span>' : '') +
+              (item.desk ? '<span class="text-[11px] text-subtle">· ' + escapeText(item.desk) + '</span>' : '');
+
+            const titleEl = document.createElement('p');
+            titleEl.className = 'text-sm leading-snug break-words ' + (item.completed ? 'line-through text-subtle' : 'text-ink');
+            titleEl.textContent = item.title;
+
+            textWrap.appendChild(metaRow);
+            textWrap.appendChild(titleEl);
+            left.appendChild(textWrap);
+
+            card.appendChild(left);
+            list.appendChild(card);
+          });
+
+          block.appendChild(list);
+        }
+
+        container.appendChild(block);
+      });
+
+      const pairEl = document.getElementById('pair-status-label');
+      if (pairEl) {
+        const code = (sharedState.pairedMac || '').slice(-4).toUpperCase() || 'BEREIT';
+        pairEl.textContent = 'Ein Schreibtisch für alles vom Mac · Mac-Code: ' + code;
+      }
+    }
+
+    document.querySelectorAll('.filter-pill').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        activeFilter = btn.getAttribute('data-filter');
+        document.querySelectorAll('.filter-pill').forEach(function(b) {
+          const isCurrent = b === btn;
+          b.className = isCurrent
+            ? 'filter-pill px-3 py-1 rounded-full text-xs font-medium bg-ink text-white'
+            : 'filter-pill px-3 py-1 rounded-full text-xs font-medium bg-surface border border-line text-muted hover:text-ink';
+        });
+        renderTimeline();
+      });
+    });
+
+    document.getElementById('btn-enable-notify').addEventListener('click', async function() {
+      if (!('Notification' in window)) return;
+      const perm = await Notification.requestPermission();
+      showToast('Mitteilungen', perm === 'granted' ? 'Mitteilungen sind aktiviert.' : 'Nicht erlaubt.');
+    });
+
+    document.getElementById('btn-demo-item').addEventListener('click', function() {
+      ingestPacket({
+        kind: 'entry',
+        deskName: 'Privat',
+        data: {
+          type: 'reminder',
+          title: 'Paket von der Abholstation holen',
+          date: addDaysISO(getTodayISO(), 1),
+          startTime: '11:00',
+          completed: false
+        }
+      }, sharedState.pairedMac);
+    });
+
+    if (broadcastChannel) {
+      broadcastChannel.onmessage = function(event) {
+        if (event.data && event.data.packet) {
+          ingestPacket(event.data.packet, event.data.fromMac);
+        }
+      };
+    }
+
+    window.addEventListener('storage', function(e) {
+      if (e.key === BRIDGE_TRANSFER_KEY && e.newValue) {
+        try {
+          const tr = JSON.parse(e.newValue);
+          if (tr && tr.packet) ingestPacket(tr.packet, tr.fromMac);
+        } catch (err) {}
+      }
+    });
+
+    consumeIncomingUrl();
+    renderTimeline();
+  ${endScriptTag}
+</body>
+</html>`;
+    }
+
+    function downloadReceiverHtmlFile() {
+      const htmlContent = generateStandaloneReceiverHTML();
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'receiver.html';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('receiver.html heruntergeladen', 'Die eigenständige iPhone-Datei receiver.html wurde gespeichert.');
+    }
+
+    function openReceiverInNewTab() {
+      const htmlContent = generateStandaloneReceiverHTML();
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
     }
 
     function renderMatrixQR(container, text) {
@@ -1138,72 +1513,9 @@
       renderMatrixQR(qrBox, url);
     }
 
-    function updateDeviceUI() {
-      const mode = getEffectiveDeviceMode();
-      const override = getDeviceOverride();
-      const badgeLabel = document.getElementById('device-badge-label');
-      const badgeDot = document.getElementById('device-badge-dot');
-      const detectedInfo = document.getElementById('bridge-detected-info');
-      const macView = document.getElementById('bridge-mac-view');
-      const iosView = document.getElementById('bridge-ios-view');
-
-      if (mode === 'iphone') {
-        badgeLabel.textContent = override === 'iphone' ? 'iPhone (Receiver)' : detectedDevice.label;
-        badgeDot.className = 'w-1.5 h-1.5 rounded-full bg-blue-600';
-        macView.classList.add('hidden');
-        iosView.classList.remove('hidden');
-      } else {
-        badgeLabel.textContent = override === 'mac' ? 'Mac (Sender)' : detectedDevice.label;
-        badgeDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
-        macView.classList.remove('hidden');
-        iosView.classList.add('hidden');
-      }
-
-      if (detectedInfo) {
-        detectedInfo.textContent = override !== 'auto'
-          ? `Manuell gewählt: ${mode === 'iphone' ? 'iPhone / iPad Receiver' : 'Mac / Desktop Sender'} (${detectedDevice.detail})`
-          : detectedDevice.detail;
-      }
-
-      document.querySelectorAll('.device-mode-btn').forEach(btn => {
-        const target = btn.getAttribute('data-set-device');
-        const isSelected = target === override;
-        btn.className = isSelected
-          ? 'device-mode-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-ink text-white transition-colors'
-          : 'device-mode-btn px-2.5 py-1 rounded-lg text-xs font-medium text-muted hover:text-ink transition-colors';
-      });
-
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-      const installGuide = document.getElementById('ios-install-guide');
-      if (installGuide) {
-        installGuide.classList.toggle('hidden', isStandalone);
-      }
-
-      const pairingBadge = document.getElementById('ios-pairing-badge');
-      if (pairingBadge) {
-        pairingBadge.textContent = state.pairedMacId
-          ? `Gekoppelt (${state.pairedMacId.slice(-4).toUpperCase()})`
-          : `Receiver-ID: ${(state.deviceId || 'IOS1').slice(-4).toUpperCase()}`;
-      }
-
-      const iosPushStatus = document.getElementById('ios-push-status');
-      const iosNotifyBtn = document.getElementById('btn-ios-enable-notify');
-      if (iosPushStatus && 'Notification' in window) {
-        if (Notification.permission === 'granted') {
-          iosPushStatus.textContent = 'Aktiv – Mitteilungen erscheinen auf dem Sperrbildschirm.';
-          iosNotifyBtn.textContent = 'Aktiv';
-        } else if (Notification.permission === 'denied') {
-          iosPushStatus.textContent = 'In iOS-Einstellungen blockiert.';
-        }
-      }
-
-      renderReceivedLog();
-    }
-
     async function sendPacketToIPhone(packet, labelText) {
       const shareUrl = buildReceiverUrl(packet);
 
-      // Lokale Bridge für zweites Browser-Tab / gleiche Origin speichern
       try {
         localStorage.setItem(BRIDGE_TRANSFER_KEY, JSON.stringify({
           id: generateId('pkt'),
@@ -1211,9 +1523,14 @@
           ts: Date.now(),
           packet
         }));
-      } catch (e) {}
+      } catch (err) {}
 
-      // 1. Optionales Push-Relay
+      try {
+        if (broadcastChannel) {
+          broadcastChannel.postMessage({ fromMac: state.deviceId, ts: Date.now(), packet });
+        }
+      } catch (err) {}
+
       if (state.relayUrl) {
         try {
           await fetch(state.relayUrl, {
@@ -1232,183 +1549,31 @@
         } catch (err) {}
       }
 
-      // 2. Natives Teilen-Menü (AirDrop, Nachrichten auf macOS/iOS)
       if (navigator.share) {
         try {
           await navigator.share({
             title: `pult. · ${labelText}`,
-            text: `Für deinen iPhone-Schreibtisch: ${labelText}`,
+            text: `Für deinen iPhone-Schreibtisch (receiver.html): ${labelText}`,
             url: shareUrl
           });
           showToast('Gesendet', `„${labelText}“ wurde zum Teilen übergeben.`, 'blue');
           return;
-        } catch (e) {
-          if (e.name === 'AbortError') return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
         }
       }
 
-      // 3. Fallback: Link kopieren & Bridge-Dialog mit QR-Code öffnen
       copyTextFallback(shareUrl);
       const input = document.getElementById('receiver-link-input');
       const qrBox = document.getElementById('receiver-qr-box');
       if (input) input.value = shareUrl;
       renderMatrixQR(qrBox, shareUrl);
       openBridgeModal();
-      showToast('Sendepaket bereit', 'Link kopiert – einfach per AirDrop/Nachricht ans iPhone schicken oder QR scannen.', 'blue');
+      showToast('Sendepaket bereit', 'Receiver-Link kopiert – per AirDrop/Nachricht senden oder QR scannen.', 'blue');
     }
-
-    function processIncomingReceiverParamsAndHash() {
-      const params = new URLSearchParams(window.location.search);
-      const urlMode = (params.get('mode') || '').toLowerCase();
-      const pairId = params.get('pair');
-      const hash = window.location.hash || '';
-
-      let hasProcessed = false;
-
-      if (urlMode === 'receiver' || urlMode === 'iphone' || pairId) {
-        if (pairId) state.pairedMacId = pairId;
-        setDeviceOverride('iphone');
-        hasProcessed = true;
-      }
-
-      if (hash.startsWith('#receive=')) {
-        try {
-          const encoded = hash.slice('#receive='.length);
-          const payload = decodePayloadBase64(encoded);
-          if (payload && payload.fromMac) {
-            state.pairedMacId = payload.fromMac;
-            setDeviceOverride('iphone');
-            if (payload.packet) {
-              ingestReceivedPacket(payload.packet);
-            } else {
-              triggerSystemNotification(
-                'iPhone Receiver gekoppelt',
-                'Bereit für Erinnerungen, Termine und Notizen von deinem Mac.',
-                'blue'
-              );
-            }
-            hasProcessed = true;
-          }
-        } catch (e) {
-          console.warn('Receiver-Paket konnte nicht gelesen werden:', e);
-        }
-      }
-
-      if (hasProcessed) {
-        try {
-          history.replaceState(null, '', window.location.pathname);
-        } catch (e) {}
-        saveState(true);
-      }
-    }
-
-    function ingestReceivedPacket(packet) {
-      if (!packet) return;
-      if (!state.receivedLog) state.receivedLog = [];
-      const timeLabel = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-
-      if (packet.kind === 'entry' && packet.data) {
-        const incoming = { ...packet.data, id: generateId('ent'), notified: false };
-        let targetDesk = state.desks.find(d => d.name.toLowerCase() === (packet.deskName || '').toLowerCase());
-        if (!targetDesk) {
-          targetDesk = getActiveDesk();
-        }
-        incoming.deskId = targetDesk.id;
-        state.entries[incoming.id] = incoming;
-
-        const chip = document.createElement('span');
-        applyEntryToChipElement(chip, incoming);
-        const p = document.createElement('p');
-        p.appendChild(chip);
-
-        if (targetDesk.id === state.activeDeskId) {
-          editorEl.appendChild(p);
-          targetDesk.content = editorEl.innerHTML;
-        } else {
-          targetDesk.content = (targetDesk.content || '') + p.outerHTML;
-        }
-
-        state.receivedLog.unshift({ time: timeLabel, text: `${incoming.title} (${formatGermanDateShort(incoming.date)}, ${incoming.startTime})` });
-        triggerSystemNotification('Vom Mac empfangen', `${incoming.title} · ${incoming.startTime}`, incoming.type === 'event' ? 'blue' : 'amber');
-      } else if (packet.kind === 'desk' && packet.data) {
-        const newDesk = {
-          id: generateId('desk'),
-          name: `${packet.data.name} (Mac)`,
-          content: packet.data.content || '<p></p>'
-        };
-        state.desks.push(newDesk);
-        if (Array.isArray(packet.entries)) {
-          packet.entries.forEach(ent => {
-            const newId = generateId('ent');
-            const cloned = { ...ent, id: newId, deskId: newDesk.id, notified: false };
-            state.entries[newId] = cloned;
-            newDesk.content = newDesk.content.replaceAll(`data-entry-id="${ent.id}"`, `data-entry-id="${newId}"`);
-          });
-        }
-        switchDesk(newDesk.id);
-        state.receivedLog.unshift({ time: timeLabel, text: `Schreibtisch „${packet.data.name}“ übernommen` });
-        triggerSystemNotification('Schreibtisch empfangen', `„${packet.data.name}“ wurde vom Mac übertragen.`, 'blue');
-      } else if (packet.kind === 'snippet' && packet.text) {
-        const activeDesk = getActiveDesk();
-        const p = document.createElement('p');
-        p.textContent = packet.text;
-        editorEl.appendChild(p);
-        activeDesk.content = editorEl.innerHTML;
-
-        state.receivedLog.unshift({ time: timeLabel, text: `Notiz: „${packet.text.slice(0, 48)}“` });
-        triggerSystemNotification('Notiz vom Mac', packet.text, 'blue');
-      } else if (packet.kind === 'bundle' && Array.isArray(packet.entries)) {
-        const activeDesk = getActiveDesk();
-        packet.entries.forEach(ent => {
-          const newId = generateId('ent');
-          const cloned = { ...ent, id: newId, deskId: activeDesk.id, notified: false };
-          state.entries[newId] = cloned;
-          const chip = document.createElement('span');
-          applyEntryToChipElement(chip, cloned);
-          const p = document.createElement('p');
-          p.appendChild(chip);
-          editorEl.appendChild(p);
-        });
-        activeDesk.content = editorEl.innerHTML;
-        state.receivedLog.unshift({ time: timeLabel, text: `${packet.entries.length} Erinnerungen/Termine vom Mac` });
-        triggerSystemNotification('Vom Mac empfangen', `${packet.entries.length} Einträge wurden übernommen.`, 'blue');
-      }
-
-      renderLists();
-      updateDeviceUI();
-      saveState(true);
-    }
-
-    function renderReceivedLog() {
-      const container = document.getElementById('received-log-list');
-      if (!container) return;
-      const log = state.receivedLog || [];
-      if (log.length === 0) {
-        container.innerHTML = `<p class="py-2 text-subtle">Noch keine Sendungen empfangen.</p>`;
-        return;
-      }
-      container.innerHTML = log.slice(0, 6).map(item => `
-        <div class="flex items-center justify-between gap-2 py-1.5 px-2.5 rounded-lg bg-paper border border-line/60">
-          <span class="text-ink truncate">${escapeHTML(item.text)}</span>
-          <span class="font-mono text-[11px] text-subtle shrink-0">${escapeHTML(item.time)}</span>
-        </div>
-      `).join('');
-    }
-
-    // Echtzeit-Empfang im Receiver-Tab, wenn in einem anderen Tab vom Mac gesendet wird
-    window.addEventListener('storage', (e) => {
-      if (e.key === BRIDGE_TRANSFER_KEY && e.newValue && getEffectiveDeviceMode() === 'iphone') {
-        try {
-          const transfer = JSON.parse(e.newValue);
-          if (transfer && transfer.packet) {
-            ingestReceivedPacket(transfer.packet);
-          }
-        } catch (err) {}
-      }
-    });
 
     // =========================================================================
-    // 6. SCHREIBTISCHE, EDITOR & BIDIREKTIONALE SYNCHRONISATION
+    // 5. SCHREIBTISCHE, EDITOR & BIDIREKTIONALE SYNCHRONISATION
     // =========================================================================
     let popoverState = {
       mode: 'create',
@@ -1455,7 +1620,7 @@
       state.desks.forEach(desk => {
         if (desk.id === activeDesk.id) return;
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = desk.content;
+        tempDiv.innerHTML = desk.content || '';
         const chips = tempDiv.querySelectorAll(`.pult-chip[data-entry-id="${entry.id}"]`);
         if (chips.length > 0) {
           chips.forEach(chip => applyEntryToChipElement(chip, entry));
@@ -1476,7 +1641,7 @@
       state.desks.forEach(desk => {
         if (desk.id === state.activeDeskId) return;
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = desk.content;
+        tempDiv.innerHTML = desk.content || '';
         const chips = tempDiv.querySelectorAll(`.pult-chip[data-entry-id="${entryId}"]`);
         if (chips.length > 0) {
           chips.forEach(chip => chip.replaceWith(document.createTextNode(replacementText)));
@@ -1699,7 +1864,7 @@
     }
 
     // =========================================================================
-    // 7. POPOVER FÜR ERINNERUNGEN & KALENDEREREIGNISSE
+    // 6. POPOVER FÜR ERINNERUNGEN & KALENDEREREIGNISSE
     // =========================================================================
     function setPopoverEntryType(type) {
       popoverState.type = type;
@@ -1888,7 +2053,7 @@
     }
 
     // =========================================================================
-    // 8. EDITOR-INTERAKTIONEN (@-TRIGGER, MARKDOWN, CHECKBOXEN, SELECTION)
+    // 7. EDITOR-INTERAKTIONEN (@-TRIGGER, MARKDOWN, CHECKBOXEN, SELECTION)
     // =========================================================================
     editorEl.addEventListener('input', (e) => {
       const activeDesk = getActiveDesk();
@@ -1928,9 +2093,7 @@
       const node = range.startContainer;
       if (node.nodeType !== Node.TEXT_NODE) return;
 
-      const text = node.nodeValue || '';
-      const trimmed = text.replace(/\u00A0/g, ' ');
-
+      const trimmed = (node.nodeValue || '').replace(/\u00A0/g, ' ');
       const blockEl = node.parentElement && node.parentElement.closest('p, div, h1, h2, li');
       if (!blockEl || blockEl === editorEl) return;
       if (blockEl.firstChild !== node) return;
@@ -2045,18 +2208,21 @@
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || sel.rangeCount === 0) {
         selectionToolbar.classList.add('hidden');
+        selectionToolbar.classList.remove('flex');
         return;
       }
 
       const range = sel.getRangeAt(0);
       if (!editorEl.contains(range.commonAncestorContainer)) {
         selectionToolbar.classList.add('hidden');
+        selectionToolbar.classList.remove('flex');
         return;
       }
 
       const selectedText = sel.toString().trim();
       if (selectedText.length < 2 || selectedText.length > 120) {
         selectionToolbar.classList.add('hidden');
+        selectionToolbar.classList.remove('flex');
         return;
       }
 
@@ -2064,6 +2230,7 @@
       selectionToolbar.style.top = `${Math.max(12, rect.top - 42)}px`;
       selectionToolbar.style.left = `${Math.min(window.innerWidth - 220, Math.max(12, rect.left + rect.width / 2 - 95))}px`;
       selectionToolbar.classList.remove('hidden');
+      selectionToolbar.classList.add('flex');
     });
 
     document.getElementById('btn-selection-create').addEventListener('click', () => {
@@ -2124,7 +2291,7 @@
       const newDesk = {
         id: generateId('desk'),
         name: `Schreibtisch ${state.desks.length + 1}`,
-        content: `<h1>Neuer Schreibtisch</h1><p></p>`
+        content: '<h1>Neuer Schreibtisch</h1><p></p>'
       };
       state.desks.push(newDesk);
       switchDesk(newDesk.id);
@@ -2156,7 +2323,7 @@
     });
 
     // =========================================================================
-    // 9. POPOVER & BRIDGE EVENT LISTENERS
+    // 8. POPOVER, BRIDGE & ANSICHT-STEUERUNG
     // =========================================================================
     document.querySelectorAll('.entry-type-btn').forEach(btn => {
       btn.addEventListener('click', () => setPopoverEntryType(btn.getAttribute('data-entry-type')));
@@ -2202,6 +2369,7 @@
       const sel = window.getSelection();
       const text = sel ? sel.toString().trim() : '';
       selectionToolbar.classList.add('hidden');
+      selectionToolbar.classList.remove('flex');
       if (!text) return;
       sendPacketToIPhone(
         { kind: 'snippet', summary: text, text },
@@ -2212,7 +2380,6 @@
     const bridgeModal = document.getElementById('bridge-modal');
     function openBridgeModal() {
       refreshMacReceiverLink();
-      updateDeviceUI();
       const relayInput = document.getElementById('relay-url-input');
       if (relayInput) relayInput.value = state.relayUrl || '';
       bridgeModal.classList.remove('hidden');
@@ -2231,19 +2398,10 @@
       }
     });
 
-    document.querySelectorAll('.device-mode-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const chosen = btn.getAttribute('data-set-device');
-        setDeviceOverride(chosen);
-        saveState();
-        updateDeviceUI();
-      });
-    });
-
     document.getElementById('btn-copy-receiver-link').addEventListener('click', () => {
       const val = document.getElementById('receiver-link-input').value;
       copyTextFallback(val);
-      showToast('Receiver-Link kopiert', 'Füge ihn auf dem iPhone/iPad ein oder sende ihn per Nachricht.');
+      showToast('Receiver-Link kopiert', 'Füge ihn auf dem iPhone ein oder sende ihn per Nachricht.');
     });
 
     document.getElementById('btn-share-receiver-link').addEventListener('click', async () => {
@@ -2252,15 +2410,18 @@
         try {
           await navigator.share({
             title: 'pult. iPhone Receiver',
-            text: 'Öffne pult. auf dem iPhone, um Erinnerungen und Notizen vom Mac zu empfangen:',
+            text: 'Öffne receiver.html auf dem iPhone, um Geteiltes vom Mac in der Datumsliste zu sehen:',
             url
           });
           return;
-        } catch (e) {}
+        } catch (err) {}
       }
       copyTextFallback(url);
-      showToast('Link kopiert', 'Dein Browser unterstützt kein direktes AirDrop-Menü – Link wurde kopiert.');
+      showToast('Link kopiert', 'Link wurde in die Zwischenablage kopiert.');
     });
+
+    document.getElementById('btn-download-receiver-html').addEventListener('click', downloadReceiverHtmlFile);
+    document.getElementById('btn-open-receiver-tab').addEventListener('click', openReceiverInNewTab);
 
     document.getElementById('btn-quick-send-desk').addEventListener('click', () => {
       bridgeModal.classList.add('hidden');
@@ -2286,26 +2447,6 @@
       );
     });
 
-    document.getElementById('btn-ios-enable-notify').addEventListener('click', async () => {
-      await requestNotificationPermission();
-      updateDeviceUI();
-    });
-
-    document.getElementById('btn-simulate-receive').addEventListener('click', () => {
-      ingestReceivedPacket({
-        kind: 'entry',
-        deskName: 'Privat',
-        data: {
-          type: 'reminder',
-          title: 'Vom Mac geschickt: Unterlagen einpacken',
-          date: addDaysISO(getTodayISO(), 1),
-          startTime: '08:30',
-          endTime: '',
-          completed: false
-        }
-      });
-    });
-
     document.getElementById('btn-save-relay').addEventListener('click', () => {
       state.relayUrl = document.getElementById('relay-url-input').value.trim();
       saveState(true);
@@ -2313,18 +2454,7 @@
     });
 
     document.getElementById('btn-copy-worker-code').addEventListener('click', () => {
-      const workerSnippet = `export default {
-  async fetch(request, env) {
-    if (request.method === 'OPTIONS') return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*' } });
-    if (request.method === 'POST') {
-      const payload = await request.json();
-      await env.PULT_KV.put('latest', JSON.stringify(payload));
-      return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
-    }
-    const latest = await env.PULT_KV.get('latest');
-    return new Response(latest || '{}', { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
-  }
-};`;
+      const workerSnippet = `export default {\n  async fetch(request, env) {\n    if (request.method === 'OPTIONS') return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*' } });\n    if (request.method === 'POST') {\n      const payload = await request.json();\n      await env.PULT_KV.put('latest', JSON.stringify(payload));\n      return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });\n    }\n    const latest = await env.PULT_KV.get('latest');\n    return new Response(latest || '{}', { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });\n  }\n};`;
       copyTextFallback(workerSnippet);
       showToast('Worker-Code kopiert', 'Bereit zum Einfügen in Cloudflare Workers.');
     });
@@ -2402,7 +2532,7 @@
     });
 
     // =========================================================================
-    // 10. BENACHRICHTIGUNGEN, EINSTELLUNGEN & DIALOGE
+    // 9. BENACHRICHTIGUNGEN, EINSTELLUNGEN & DIALOGE
     // =========================================================================
     function showToast(title, body, accent = 'amber') {
       const container = document.getElementById('toast-container');
@@ -2430,7 +2560,7 @@
       if ('Notification' in window && Notification.permission === 'granted') {
         try {
           new Notification(`pult. · ${title}`, { body });
-        } catch (e) {}
+        } catch (err) {}
       }
     }
 
@@ -2466,7 +2596,7 @@
       try {
         await Notification.requestPermission();
         updateNotificationUI();
-      } catch (e) {}
+      } catch (err) {}
     }
 
     document.getElementById('btn-notify-banner').addEventListener('click', requestNotificationPermission);
@@ -2553,7 +2683,6 @@
         'Deine aktuellen Notizen werden durch die ursprünglichen Beispiel-Schreibtische ersetzt.',
         () => {
           state = createInitialState();
-          setDeviceOverride('auto');
           saveState(true);
           initApp();
           settingsModal.classList.add('hidden');
@@ -2600,7 +2729,7 @@
     });
 
     // =========================================================================
-    // 11. INITIALISIERUNG
+    // 10. INITIALISIERUNG
     // =========================================================================
     function initApp() {
       setupPWA();
@@ -2608,11 +2737,9 @@
       deskTitleInput.value = activeDesk.name;
       editorEl.innerHTML = activeDesk.content || '';
       syncTodoCheckboxesFromDOM();
-      processIncomingReceiverParamsAndHash();
       renderDeskTabs();
       renderLists();
       updateNotificationUI();
-      updateDeviceUI();
       if (window.innerWidth < 1024) {
         setMobileView('editor');
       }
