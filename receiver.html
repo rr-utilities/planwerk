@@ -82,11 +82,19 @@
           <span class="font-semibold tracking-tight text-lg text-ink">pult.</span>
           <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-200/70 text-muted">Receiver</span>
         </div>
-        <p class="text-[11px] text-muted mt-0.5">Ein Schreibtisch für alles, was per Link empfangen wird</p>
+        <p class="text-[11px] text-muted mt-0.5">Ein Schreibtisch für alles, was empfangen wird</p>
       </div>
-      <button id="btn-enable-notify" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-ink transition-colors">
-        Mitteilungen
-      </button>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button id="btn-restart-receiver" type="button" title="Aktualisieren" aria-label="Aktualisieren" class="p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-muted hover:text-ink transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+            <polyline points="21 3 21 9 15 9"/>
+          </svg>
+        </button>
+        <button id="btn-enable-notify" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-ink transition-colors">
+          Mitteilungen
+        </button>
+      </div>
     </div>
 
     <!-- Klare Unterscheidung nach Typ innerhalb des einen Receiver-Schreibtischs -->
@@ -98,17 +106,17 @@
     </div>
   </header>
 
-  <!-- Reine chronologische Datumsliste + Link-Import -->
+  <!-- Reine chronologische Datumsliste + Einmal-Link/Code-Import -->
   <main class="max-w-xl mx-auto px-4 py-6 space-y-6">
     <div id="shared-timeline" class="space-y-6"></div>
 
     <section aria-label="Link importieren" class="bg-surface border border-line/80 rounded-2xl p-4 space-y-2.5">
-      <label for="import-link-input" class="block text-xs font-medium text-muted">Link einfügen &amp; übernehmen</label>
+      <label for="import-link-input" class="block text-xs font-medium text-muted">Link oder Code einfügen &amp; übernehmen</label>
       <div class="flex items-center gap-2">
         <input
           id="import-link-input"
-          type="url"
-          placeholder="https://.../receiver.html#data=..."
+          type="text"
+          placeholder="https://.../receiver.html#data=... oder PULT1:..."
           class="flex-1 min-w-0 px-3 py-2 text-xs font-mono bg-paper border border-line rounded-xl text-ink outline-none focus:border-ink transition-colors"
         />
         <button
@@ -126,8 +134,10 @@
 
   <script>
     const RECEIVER_STORAGE_KEY = 'pult_receiver_only_items_v1';
+    const USED_LINKS_STORAGE_KEY = 'pult_receiver_used_links_v1';
     let activeFilter = 'all';
-    let items = loadItems();
+    let items = loadItems().filter(it => !(it.kind === 'reminder' && it.completed));
+    let usedSignatures = loadUsedSignatures();
 
     function getTodayISO() {
       const now = new Date();
@@ -174,7 +184,7 @@
       el.innerHTML = `<div><p class="font-semibold">${escapeText(title)}</p><p class="text-zinc-300 mt-0.5">${escapeText(body)}</p></div><button type="button" class="text-zinc-400 hover:text-white">✕</button>`;
       el.querySelector('button').addEventListener('click', () => el.remove());
       box.appendChild(el);
-      setTimeout(() => el.remove(), 4500);
+      setTimeout(() => el.remove(), 4000);
     }
 
     function loadItems() {
@@ -194,6 +204,30 @@
       } catch (err) {}
     }
 
+    function loadUsedSignatures() {
+      try {
+        const raw = localStorage.getItem(USED_LINKS_STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (err) {
+        return [];
+      }
+    }
+
+    function saveUsedSignatures() {
+      try {
+        localStorage.setItem(USED_LINKS_STORAGE_KEY, JSON.stringify(usedSignatures.slice(-150)));
+      } catch (err) {}
+    }
+
+    function getSignature(encodedToken, payload) {
+      if (payload && payload.createdAt) {
+        return `${payload.createdAt}::${payload.filter || ''}`;
+      }
+      return String(encodedToken || '').trim();
+    }
+
     function stripHtmlToText(html) {
       const div = document.createElement('div');
       div.innerHTML = html || '';
@@ -207,6 +241,7 @@
 
       if (packet.kind === 'reminders' && Array.isArray(packet.entries)) {
         packet.entries.forEach(ent => {
+          if (ent.completed) return;
           incoming.push({
             id: `rcv_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
             kind: 'reminder',
@@ -214,7 +249,7 @@
             date: ent.date || fallbackDate,
             time: ent.startTime || '09:00',
             desk: ent.deskName || '',
-            completed: !!ent.completed
+            completed: false
           });
         });
       } else if (packet.kind === 'events' && Array.isArray(packet.entries)) {
@@ -232,6 +267,7 @@
       } else if (packet.kind === 'desk' && packet.data) {
         if (Array.isArray(packet.entries)) {
           packet.entries.forEach(ent => {
+            if (ent.type !== 'event' && ent.completed) return;
             incoming.push({
               id: `rcv_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
               kind: ent.type === 'event' ? 'event' : 'reminder',
@@ -239,7 +275,7 @@
               date: ent.date || fallbackDate,
               time: ent.type === 'event' ? (ent.endTime ? `${ent.startTime}–${ent.endTime}` : ent.startTime) : (ent.startTime || '09:00'),
               desk: packet.data.name || '',
-              completed: !!ent.completed
+              completed: false
             });
           });
         }
@@ -255,65 +291,142 @@
             completed: false
           });
         }
+      } else {
+        // Unterstützung für strukturierte Pakete mit reminders / events / notes Arrays
+        if (Array.isArray(packet.reminders)) {
+          packet.reminders.forEach(ent => {
+            if (ent.completed) return;
+            incoming.push({
+              id: `rcv_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+              kind: 'reminder',
+              title: ent.title || 'Erinnerung',
+              date: ent.date || fallbackDate,
+              time: ent.startTime || '09:00',
+              desk: ent.deskTitle || ent.deskName || '',
+              completed: false
+            });
+          });
+        }
+        if (Array.isArray(packet.events)) {
+          packet.events.forEach(ent => {
+            incoming.push({
+              id: `rcv_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+              kind: 'event',
+              title: ent.title || 'Ereignis',
+              date: ent.date || fallbackDate,
+              time: ent.endTime ? `${ent.startTime}–${ent.endTime}` : (ent.startTime || '09:00'),
+              desk: ent.deskTitle || ent.deskName || '',
+              completed: false
+            });
+          });
+        }
+        if (Array.isArray(packet.notes)) {
+          packet.notes.forEach(ent => {
+            const plain = stripHtmlToText(ent.title || ent.text || '');
+            if (!plain) return;
+            incoming.push({
+              id: `rcv_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+              kind: 'note',
+              title: plain,
+              date: ent.date || fallbackDate,
+              time: '',
+              desk: ent.deskTitle || ent.deskName || '',
+              completed: false
+            });
+          });
+        }
       }
 
       if (incoming.length > 0) {
         items = incoming.concat(items);
         saveItems();
-        showToast('Empfangen', `${incoming.length} Einträge in der Datumsliste gespeichert.`);
+        showToast('Empfangen', `${incoming.length} Eintrag/Einträge in der Datumsliste gespeichert.`);
+      }
+    }
+
+    function extractEncodedPayload(rawValue) {
+      const trimmed = String(rawValue || '').trim();
+      if (!trimmed) return '';
+      const hashIndex = trimmed.indexOf('#data=');
+      if (hashIndex !== -1) {
+        return trimmed.slice(hashIndex + '#data='.length).trim();
+      }
+      if (trimmed.startsWith('data=')) {
+        return trimmed.slice('data='.length).trim();
+      }
+      if (trimmed.startsWith('PULT1:')) {
+        return trimmed.slice('PULT1:'.length).trim();
+      }
+      return '';
+    }
+
+    function clearUrlHash() {
+      if (!window.location.hash) return;
+      try {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      } catch (err) {
+        window.location.hash = '';
       }
     }
 
     function readUrlHashData() {
       const hash = window.location.hash || '';
-      if (hash.startsWith('#data=')) {
-        try {
-          const encoded = hash.slice('#data='.length);
-          const json = decodeURIComponent(escape(atob(encoded)));
-          const payload = JSON.parse(json);
-          if (payload && payload.packet) {
-            applyPacket(payload.packet);
-          }
-        } catch (err) {}
-      }
-    }
+      if (!hash.startsWith('#data=')) return;
 
-    function extractHashFromImportedLink(rawValue) {
-      const trimmed = String(rawValue || '').trim();
-      if (!trimmed) return '';
-      const hashIndex = trimmed.indexOf('#');
-      if (hashIndex !== -1) {
-        return trimmed.slice(hashIndex);
-      }
-      if (trimmed.startsWith('data=')) {
-        return '#' + trimmed;
-      }
-      return '';
+      const encoded = extractEncodedPayload(hash);
+      clearUrlHash();
+      if (!encoded) return;
+
+      try {
+        const json = decodeURIComponent(escape(atob(encoded)));
+        const payload = JSON.parse(json);
+        if (!payload || !payload.packet) return;
+
+        const sig = getSignature(encoded, payload);
+        if (usedSignatures.includes(sig)) return;
+
+        usedSignatures.push(sig);
+        saveUsedSignatures();
+        applyPacket(payload.packet);
+      } catch (err) {}
     }
 
     function restartReceiverWithLink(rawLink) {
-      const targetHash = extractHashFromImportedLink(rawLink);
-      if (!targetHash || !targetHash.startsWith('#data=')) {
-        showToast('Ungültiger Link', 'Bitte einen gültigen pult.-Link mit #data=... einfügen.');
-        return;
-      }
-
-      try {
-        const encoded = targetHash.slice('#data='.length);
-        const json = decodeURIComponent(escape(atob(encoded)));
-        const payload = JSON.parse(json);
-        if (!payload || !payload.packet) {
-          showToast('Link leer', 'Im eingefügten Link wurden keine Daten gefunden.');
-          return;
-        }
-        applyPacket(payload.packet);
-      } catch (err) {
-        showToast('Link fehlerhaft', 'Die Daten im Link konnten nicht gelesen werden.');
-        return;
-      }
-
       const inputEl = document.getElementById('import-link-input');
+      const encoded = extractEncodedPayload(rawLink);
+
+      // Leiste sofort leeren, damit kein doppeltes Einfügen/Spam passiert
       if (inputEl) inputEl.value = '';
+
+      if (!encoded) {
+        showToast('Ungültiger Link', 'Bitte einen gültigen pult.-Link (#data=...) oder Code einfügen.');
+        return;
+      }
+
+      let payload = null;
+      try {
+        const json = decodeURIComponent(escape(atob(encoded)));
+        payload = JSON.parse(json);
+      } catch (err) {
+        showToast('Link fehlerhaft', 'Die Daten konnten nicht gelesen werden.');
+        return;
+      }
+
+      if (!payload || !payload.packet) {
+        showToast('Link leer', 'Es wurden keine Daten gefunden.');
+        return;
+      }
+
+      const sig = getSignature(encoded, payload);
+      if (usedSignatures.includes(sig)) {
+        showToast('Bereits eingelöst', 'Dieser Link wurde bereits einmal verwendet.');
+        return;
+      }
+
+      usedSignatures.push(sig);
+      saveUsedSignatures();
+      applyPacket(payload.packet);
+      clearUrlHash();
 
       activeFilter = 'all';
       document.querySelectorAll('.filter-pill').forEach(b => {
@@ -322,12 +435,6 @@
           ? 'filter-pill px-3 py-1 rounded-full text-xs font-medium bg-ink text-white'
           : 'filter-pill px-3 py-1 rounded-full text-xs font-medium bg-surface border border-line text-muted hover:text-ink';
       });
-
-      try {
-        history.replaceState(null, '', targetHash);
-      } catch (err) {
-        window.location.hash = targetHash;
-      }
 
       renderTimeline();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -348,6 +455,7 @@
       const todayISO = getTodayISO();
 
       const filtered = items.filter(item => {
+        if (item.kind === 'reminder' && item.completed) return false;
         if (activeFilter === 'all') return true;
         return item.kind === activeFilter;
       });
@@ -383,12 +491,15 @@
             if (item.kind === 'reminder') {
               const cb = document.createElement('input');
               cb.type = 'checkbox';
-              cb.checked = !!item.completed;
+              cb.checked = false;
               cb.className = 'pult-check';
               cb.addEventListener('change', () => {
-                item.completed = cb.checked;
-                saveItems();
-                renderTimeline();
+                if (cb.checked) {
+                  items = items.filter(x => x.id !== item.id);
+                  saveItems();
+                  showToast('Erledigt', 'To-do aus dem Receiver entfernt.');
+                  renderTimeline();
+                }
               });
               left.appendChild(cb);
             }
@@ -403,7 +514,7 @@
               (item.desk ? `<span class="text-[11px] text-subtle">· ${escapeText(item.desk)}</span>` : '');
 
             const titleEl = document.createElement('p');
-            titleEl.className = `text-sm leading-snug break-words ${item.completed ? 'line-through text-subtle' : 'text-ink'}`;
+            titleEl.className = 'text-sm leading-snug break-words text-ink';
             titleEl.textContent = item.title;
 
             textWrap.appendChild(metaRow);
@@ -420,6 +531,17 @@
         container.appendChild(block);
       });
     }
+
+    document.getElementById('btn-restart-receiver').addEventListener('click', () => {
+      const inputEl = document.getElementById('import-link-input');
+      if (inputEl) inputEl.value = '';
+      clearUrlHash();
+      items = loadItems().filter(it => !(it.kind === 'reminder' && it.completed));
+      saveItems();
+      renderTimeline();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('Aktualisiert', 'Receiver wurde neu geladen.');
+    });
 
     document.querySelectorAll('.filter-pill').forEach(btn => {
       btn.addEventListener('click', () => {
