@@ -262,10 +262,9 @@
           Gespeichert
         </span>
 
-        <button id="btn-device-bridge" type="button" title="Mac Arbeitsplatz ↔ iPhone Receiver (receiver.html)" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200/80 text-ink transition-colors">
-          <span id="device-badge-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          <span id="device-badge-label">Mac</span>
-          <span class="text-subtle">→ iPhone</span>
+        <button id="btn-device-bridge" type="button" title="Teilen & Export (receiver.html)" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200/80 text-ink transition-colors">
+          <span class="w-1.5 h-1.5 rounded-full bg-ink"></span>
+          <span>Teilen &amp; Export</span>
         </button>
 
         <button id="btn-notify-banner" type="button" class="hidden text-xs font-medium px-2.5 py-1.5 rounded-lg bg-amberSoft text-amberAccent hover:bg-amber-200/70 transition-colors">
@@ -483,13 +482,13 @@
     </div>
   </div>
 
-  <!-- Mac -> iPhone Receiver Modal (receiver.html Teilen, Link, QR & Download) -->
+  <!-- Teilen & Export Modal (receiver.html Download, GitHub-Link & Filter-Versand) -->
   <div id="bridge-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/15 backdrop-blur-[1px] p-4">
     <div class="bg-surface border border-line rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-5 max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="bridge-heading">
       <div class="flex items-center justify-between">
         <div>
-          <h3 id="bridge-heading" class="text-base font-semibold text-ink">Mac Arbeitsplatz → iPhone Receiver</h3>
-          <p id="bridge-detected-info" class="text-xs text-muted mt-0.5">Mac-Arbeitsplatz aktiv · Teilt gezielt an receiver.html</p>
+          <h3 id="bridge-heading" class="text-base font-semibold text-ink">Export &amp; Teilen</h3>
+          <p class="text-xs text-muted mt-0.5"><code class="font-mono">receiver.html</code> herunterladen und per GitHub-Link via AirDrop senden</p>
         </div>
         <button id="btn-close-bridge" type="button" class="p-1 rounded-lg text-muted hover:text-ink hover:bg-zinc-100">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -498,84 +497,75 @@
         </button>
       </div>
 
-      <!-- Schritt 1: Receiver-Link & QR-Code -->
+      <!-- Nur Erklärung zum Herunterladen von receiver.html -->
       <div class="bg-paper border border-line rounded-xl p-4 space-y-3">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-muted">Schritt 1 · receiver.html auf iPhone öffnen</p>
-            <p class="text-xs text-ink mt-1 leading-relaxed">
-              Sende den Link per <strong>AirDrop</strong> oder <strong>Nachrichten</strong> ans iPhone oder scanne den QR-Code. Auf dem iPhone erscheint nur eine klare Datumsliste mit allem Geteilten.
-            </p>
-          </div>
-          <div id="receiver-qr-box" class="shrink-0 w-24 h-24 bg-white border border-line rounded-xl p-1.5 flex items-center justify-center" title="Mit iPhone-Kamera scannen"></div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <input id="receiver-link-input" type="text" readonly class="flex-1 text-xs font-mono bg-white border border-line rounded-lg px-2.5 py-2 text-muted outline-none" />
-          <button id="btn-copy-receiver-link" type="button" class="px-3 py-2 rounded-lg text-xs font-medium border border-line bg-white hover:bg-zinc-50 text-ink shrink-0">
-            Kopieren
+        <p class="text-xs text-muted leading-relaxed">
+          Lade zuerst <code class="font-mono text-ink">receiver.html</code> herunter und lege die Datei neben deiner <code class="font-mono text-ink">index.html</code> auf GitHub ab. Es gibt kein Verbinden oder Koppeln – die gewählten Inhalte werden direkt in den GitHub-Link gepackt und per AirDrop verschickt.
+        </p>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-download-receiver-html" type="button" class="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-ink text-white hover:bg-zinc-800 transition-colors">
+            receiver.html herunterladen
           </button>
-          <button id="btn-share-receiver-link" type="button" class="px-3 py-2 rounded-lg text-xs font-medium bg-ink text-white hover:bg-zinc-800 shrink-0">
-            AirDrop / Teilen
+          <button id="btn-open-receiver-tab" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-line bg-white hover:bg-zinc-50 text-ink transition-colors">
+            Vorschau öffnen
           </button>
-        </div>
-
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-line/60">
-          <span class="text-[11px] text-muted">Separate iPhone-Datei (<code class="font-mono">receiver.html</code>):</span>
-          <div class="flex items-center gap-2">
-            <button id="btn-open-receiver-tab" type="button" class="px-2.5 py-1 rounded-lg text-[11px] font-medium border border-line bg-white hover:bg-zinc-50 text-ink">
-              In neuem Tab öffnen
-            </button>
-            <button id="btn-download-receiver-html" type="button" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-zinc-900 hover:bg-zinc-800 text-white">
-              receiver.html laden
-            </button>
-          </div>
         </div>
       </div>
 
-      <!-- Schritt 2: Schnellversand vom Mac -->
+      <!-- GitHub-Link zu receiver.html -->
+      <div class="space-y-1.5">
+        <label for="github-receiver-base-input" class="block text-xs font-medium text-ink">GitHub-Link zu receiver.html</label>
+        <input
+          id="github-receiver-base-input"
+          type="url"
+          placeholder="https://DEIN-NUTZERNAME.github.io/pult/receiver.html"
+          class="w-full px-3 py-2 text-xs font-mono bg-paper border border-line rounded-xl text-ink outline-none focus:border-ink transition-colors"
+        />
+      </div>
+
+      <!-- Filter-Buttons: Alle Erinnerungen / Alle Ereignisse / Alles vom aktuellen Schreibtisch -->
       <div class="space-y-2">
-        <p class="text-xs font-semibold text-ink">Schritt 2 · Gezielt vom Mac an den Receiver senden</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-          <button id="btn-quick-send-desk" type="button" class="py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink text-left flex items-center justify-between">
-            <span>Aktuellen Schreibtisch senden</span>
-            <span>↗</span>
+        <p class="text-xs font-medium text-ink">Filter für den Versand via AirDrop</p>
+        <div class="grid grid-cols-1 gap-2">
+          <button id="btn-share-reminders" type="button" class="w-full py-2.5 px-3.5 rounded-xl text-xs font-medium border border-line bg-paper hover:bg-zinc-100/70 text-ink transition-colors flex items-center justify-between">
+            <span>Alle Erinnerungen</span>
+            <span id="count-export-reminders" class="font-mono text-[11px] text-muted">0</span>
           </button>
-          <button id="btn-quick-send-upcoming" type="button" class="py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink text-left flex items-center justify-between">
-            <span>Alle offenen Einträge senden</span>
-            <span>↗</span>
+
+          <button id="btn-share-events" type="button" class="w-full py-2.5 px-3.5 rounded-xl text-xs font-medium border border-line bg-paper hover:bg-zinc-100/70 text-ink transition-colors flex items-center justify-between">
+            <span>Alle Ereignisse</span>
+            <span id="count-export-events" class="font-mono text-[11px] text-muted">0</span>
+          </button>
+
+          <button id="btn-share-current-desk" type="button" class="w-full py-2.5 px-3.5 rounded-xl text-xs font-medium border border-line bg-paper hover:bg-zinc-100/70 text-ink transition-colors flex items-center justify-between">
+            <span id="label-export-current-desk">Alles vom aktuellen Schreibtisch</span>
+            <span class="text-muted">↗</span>
           </button>
         </div>
       </div>
 
-      <!-- Optionales Push-Relay -->
-      <details class="border-t border-line/70 pt-3 text-xs">
-        <summary class="cursor-pointer font-medium text-muted hover:text-ink select-none">
-          Optional: Push-Relay-URL für Hintergrund-Mitteilungen
-        </summary>
-        <div class="mt-3 space-y-2.5 text-muted">
-          <p class="leading-relaxed">
-            Im selben Browser wird über <code class="font-mono">BroadcastChannel</code> und <code class="font-mono">localStorage</code> sofort zugestellt; per Link/AirDrop reist das Paket direkt im Hash an <code class="font-mono">receiver.html</code>. Optional kannst du hier einen Relay-Endpunkt hinterlegen:
-          </p>
-          <div class="flex gap-2">
-            <input id="relay-url-input" type="url" placeholder="https://pult-relay.dein-name.workers.dev" class="flex-1 px-2.5 py-1.5 text-xs font-mono bg-paper border border-line rounded-lg text-ink outline-none" />
-            <button id="btn-save-relay" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-ink">
-              Speichern
-            </button>
-          </div>
-          <button id="btn-copy-worker-code" type="button" class="text-[11px] text-ink underline hover:text-amberAccent">
-            Cloudflare-Worker-Vorlage kopieren
-          </button>
-        </div>
-      </details>
+      <!-- Generierter Link -->
+      <div class="pt-3 border-t border-line/70 flex items-center gap-2">
+        <input id="receiver-link-input" type="text" readonly placeholder="Wähle oben einen Filter zum Erzeugen des GitHub-Links …" class="flex-1 text-xs font-mono bg-paper border border-line rounded-lg px-2.5 py-2 text-muted outline-none" />
+        <button id="btn-copy-receiver-link" type="button" class="px-3 py-2 rounded-lg text-xs font-medium border border-line bg-white hover:bg-zinc-50 text-ink shrink-0">
+          Kopieren
+        </button>
+      </div>
+
+      <div class="pt-3 border-t border-line/70 flex items-center justify-between gap-2">
+        <span class="text-[11px] text-muted">Lokales Backup als JSON</span>
+        <button id="btn-export-json-from-bridge" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-line bg-paper hover:bg-zinc-100 text-ink transition-colors">
+          JSON exportieren
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Einstellungs- & Datensicherungs-Modal -->
+  <!-- Einstellungen & Datensicherung Modal -->
   <div id="settings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/15 backdrop-blur-[1px] p-4">
-    <div class="bg-surface border border-line rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5" role="dialog" aria-modal="true">
+    <div class="bg-surface border border-line rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5" role="dialog" aria-modal="true" aria-labelledby="settings-heading">
       <div class="flex items-center justify-between">
-        <h3 class="text-base font-semibold text-ink">Einstellungen & Daten</h3>
+        <h3 id="settings-heading" class="text-base font-semibold text-ink">Einstellungen &amp; Daten</h3>
         <button id="btn-close-settings" type="button" class="p-1 rounded-lg text-muted hover:text-ink hover:bg-zinc-100">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -584,41 +574,38 @@
       </div>
 
       <!-- Benachrichtigungen -->
-      <div class="space-y-2 pb-4 border-b border-line/70">
+      <div class="bg-paper border border-line rounded-xl p-4 space-y-2.5">
         <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-ink">Benachrichtigungen</p>
-            <p id="notification-status-text" class="text-xs text-muted">Status wird geprüft …</p>
-          </div>
-          <button id="btn-request-permission" type="button" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-ink transition-colors">
-            Aktivieren
+          <span class="text-xs font-semibold text-ink">Erinnerungs-Mitteilungen</span>
+          <button id="btn-request-permission" type="button" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-ink text-white hover:bg-zinc-800 transition-colors">
+            Erlauben
           </button>
         </div>
-        <button id="btn-test-notification" type="button" class="w-full py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink transition-colors text-left flex items-center justify-between">
-          <span>Test-Benachrichtigung jetzt auslösen</span>
-          <span class="text-muted">→</span>
+        <p id="notification-status-text" class="text-xs text-muted">Status wird geprüft …</p>
+        <button id="btn-test-notification" type="button" class="text-xs font-medium text-ink underline underline-offset-2 hover:text-muted">
+          Test-Mitteilung senden
         </button>
       </div>
 
-      <!-- Lokale Sicherung & Synchronisation (JSON Export/Import) -->
-      <div class="space-y-2.5 pb-4 border-b border-line/70">
-        <p class="text-sm font-medium text-ink">Lokale Datensicherung</p>
-        <p class="text-xs text-muted leading-relaxed">Alle Schreibtische, Notizen, Erinnerungen und Termine werden automatisch lokal im <code class="font-mono">localStorage</code> gespeichert.</p>
-        <div class="grid grid-cols-2 gap-2 pt-1">
-          <button id="btn-export-json" type="button" class="py-2 px-3 rounded-xl text-xs font-medium bg-ink text-white hover:bg-zinc-800 transition-colors">
-            Backup exportieren
+      <!-- Lokales Backup (JSON) -->
+      <div class="bg-paper border border-line rounded-xl p-4 space-y-3">
+        <p class="text-xs font-semibold text-ink">Lokale Datensicherung</p>
+        <p class="text-xs text-muted leading-relaxed">Alle Schreibtische, Erinnerungen und Termine liegen lokal in deinem Browser.</p>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="btn-export-json" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-ink text-white hover:bg-zinc-800 transition-colors">
+            JSON exportieren
           </button>
-          <label class="py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink transition-colors text-center cursor-pointer">
-            Backup importieren
-            <input id="input-import-json" type="file" accept=".json" class="hidden" />
+          <label class="px-3 py-1.5 rounded-lg text-xs font-medium border border-line bg-white hover:bg-zinc-50 text-ink cursor-pointer transition-colors">
+            JSON importieren
+            <input id="input-import-json" type="file" accept="application/json" class="hidden" />
           </label>
         </div>
       </div>
 
-      <!-- Zurücksetzen -->
-      <div class="flex items-center justify-between pt-1">
-        <span class="text-xs text-muted">Beispieldaten wiederherstellen</span>
-        <button id="btn-reset-demo" type="button" class="text-xs font-medium text-red-600 hover:underline">
+      <!-- Beispiel-Daten -->
+      <div class="pt-2 border-t border-line/70 flex items-center justify-between">
+        <span class="text-xs text-muted">Beispieldaten</span>
+        <button id="btn-reset-demo" type="button" class="text-xs font-medium text-red-600 hover:text-red-700 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-colors">
           Zurücksetzen
         </button>
       </div>
@@ -648,8 +635,7 @@
      */
 
     const STORAGE_KEY = 'pult_mac_state_v1';
-    const BRIDGE_TRANSFER_KEY = 'pult_bridge_last_packet';
-    const broadcastChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('pult_mac_iphone_channel') : null;
+    const DEFAULT_GITHUB_RECEIVER_URL = 'https://DEIN-NUTZERNAME.github.io/pult/receiver.html';
 
     // =========================================================================
     // 1. PWA MANIFEST, ICON & SERVICE WORKER (FEHLERSICHER)
@@ -754,8 +740,7 @@
       return {
         activeDeskId: 'desk_privat',
         showCompleted: false,
-        deviceId: generateId('mac'),
-        relayUrl: '',
+        githubReceiverUrl: DEFAULT_GITHUB_RECEIVER_URL,
         entries: {
           [e1]: {
             id: e1,
@@ -849,8 +834,8 @@
         if (!parsed.entries || typeof parsed.entries !== 'object') {
           parsed.entries = {};
         }
-        if (!parsed.deviceId) {
-          parsed.deviceId = generateId('mac');
+        if (typeof parsed.githubReceiverUrl !== 'string' || !parsed.githubReceiverUrl.trim()) {
+          parsed.githubReceiverUrl = DEFAULT_GITHUB_RECEIVER_URL;
         }
         return parsed;
       } catch (err) {
@@ -861,15 +846,13 @@
     let state = loadState();
 
     // =========================================================================
-    // 3. DOM REFERENZEN & SPEICHER-FUNKTION
+    // 3. DOM-REFERENZEN, SPEICHER & TEXT-HELFER
     // =========================================================================
     const deskTabsEl = document.getElementById('desk-tabs');
     const deskTitleInput = document.getElementById('desk-title-input');
     const editorEl = document.getElementById('editor');
     const remindersListEl = document.getElementById('reminders-list');
     const calendarListEl = document.getElementById('calendar-list');
-    const toggleShowCompleted = document.getElementById('toggle-show-completed');
-
     const selectionToolbar = document.getElementById('selection-toolbar');
     const entryPopover = document.getElementById('entry-popover');
     const entryTitleInput = document.getElementById('entry-title');
@@ -877,33 +860,30 @@
     const entryStartTimeInput = document.getElementById('entry-start-time');
     const entryEndTimeInput = document.getElementById('entry-end-time');
     const endTimeWrapper = document.getElementById('end-time-wrapper');
-    const labelStartTime = document.getElementById('label-start-time');
     const timeFieldsContainer = document.getElementById('time-fields-container');
+    const labelStartTime = document.getElementById('label-start-time');
     const btnDeleteEntry = document.getElementById('btn-delete-entry');
+    const toggleShowCompleted = document.getElementById('toggle-show-completed');
+    const saveStatusEl = document.getElementById('save-status');
 
-    let saveTimeout = null;
-    function saveState(immediate = false) {
-      const statusEl = document.getElementById('save-status');
-      if (statusEl) {
-        statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Speichert …';
-      }
+    let saveIndicatorTimeout = null;
 
-      const commit = () => {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-          if (statusEl) {
-            statusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500/80"></span> Gespeichert';
-          }
-        } catch (err) {
-          showToast('Speicherfehler', 'Lokaler Speicherplatz ist voll oder blockiert.');
+    function saveState(showPulse = false) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        if (saveStatusEl) {
+          saveStatusEl.innerHTML = showPulse
+            ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Gespeichert'
+            : '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500/80"></span>Gespeichert';
+          clearTimeout(saveIndicatorTimeout);
+          saveIndicatorTimeout = setTimeout(() => {
+            saveStatusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500/80"></span>Gespeichert';
+          }, 1200);
         }
-      };
-
-      clearTimeout(saveTimeout);
-      if (immediate) {
-        commit();
-      } else {
-        saveTimeout = setTimeout(commit, 250);
+      } catch (err) {
+        if (saveStatusEl) {
+          saveStatusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Lokal aktiv';
+        }
       }
     }
 
@@ -916,57 +896,53 @@
     }
 
     function copyTextFallback(text) {
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).catch(() => {});
-      }
-      const temp = document.createElement('textarea');
-      temp.value = text;
-      temp.style.position = 'fixed';
-      temp.style.opacity = '0';
-      document.body.appendChild(temp);
-      temp.select();
       try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
         document.execCommand('copy');
+        document.body.removeChild(ta);
       } catch (err) {}
-      document.body.removeChild(temp);
     }
 
     // =========================================================================
-    // 4. MAC -> IPHONE RECEIVER (receiver.html) & TEILEN
+    // 4. TEILEN & EXPORT (receiver.html GITHUB-LINK & FILTER-VERSAND)
     // =========================================================================
     function encodePayloadBase64(obj) {
       const json = JSON.stringify(obj);
       return btoa(unescape(encodeURIComponent(json)));
     }
 
-    function buildReceiverUrl(packet = null) {
-      const isHttp = window.location.protocol === 'http:' || window.location.protocol === 'https:';
-      let baseUrl = 'receiver.html';
-      if (isHttp && window.location.origin && window.location.origin !== 'null') {
-        const currentPath = window.location.pathname || '/';
-        const receiverPath = currentPath.endsWith('/')
-          ? `${currentPath}receiver.html`
-          : currentPath.replace(/[^/]*$/, 'receiver.html');
-        baseUrl = `${window.location.origin}${receiverPath}`;
+    function getNormalizedGithubReceiverUrl() {
+      const input = document.getElementById('github-receiver-base-input');
+      const raw = (input ? input.value : state.githubReceiverUrl) || DEFAULT_GITHUB_RECEIVER_URL;
+      const trimmed = raw.trim();
+      state.githubReceiverUrl = trimmed || DEFAULT_GITHUB_RECEIVER_URL;
+      saveState();
+      try {
+        const parsedUrl = new URL(state.githubReceiverUrl);
+        parsedUrl.hash = '';
+        return parsedUrl.toString();
+      } catch (err) {
+        return state.githubReceiverUrl.split('#')[0];
       }
+    }
 
-      const macId = state.deviceId || generateId('mac');
-      const params = new URLSearchParams();
-      params.set('mode', 'receiver');
-      params.set('pair', macId);
-
+    function buildReceiverShareUrl(packet) {
+      const baseUrl = getNormalizedGithubReceiverUrl();
       const payload = {
         v: 1,
-        fromMac: macId,
         ts: Date.now(),
         packet
       };
-      return `${baseUrl}?${params.toString()}#receive=${encodePayloadBase64(payload)}`;
+      return `${baseUrl}#data=${encodePayloadBase64(payload)}`;
     }
 
     function generateStandaloneReceiverHTML() {
-      const macId = state.deviceId || generateId('mac');
-      const safeMacLiteral = JSON.stringify(macId);
       const endScriptTag = '</' + 'script>';
 
       return `<!DOCTYPE html>
@@ -976,9 +952,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="pult. iPhone" />
+  <meta name="apple-mobile-web-app-title" content="pult. Receiver" />
   <meta name="theme-color" content="#FBFBF9" />
-  <title>pult. · Geteiltes (iPhone)</title>
+  <title>pult. · Receiver</title>
   <script src="https://cdn.tailwindcss.com">${endScriptTag}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1050,18 +1026,13 @@
       <div>
         <div class="flex items-center gap-2">
           <span class="font-semibold tracking-tight text-lg text-ink">pult.</span>
-          <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-200/70 text-muted">iPhone · Geteiltes</span>
+          <span class="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-200/70 text-muted">Receiver</span>
         </div>
-        <p id="pair-status-label" class="text-[11px] text-muted mt-0.5">Ein Schreibtisch für alles vom Mac</p>
+        <p class="text-[11px] text-muted mt-0.5">Geteilte Inhalte in chronologischer Datumsliste</p>
       </div>
-      <div class="flex items-center gap-1.5">
-        <button id="btn-enable-notify" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-ink transition-colors">
-          Mitteilungen
-        </button>
-        <button id="btn-demo-item" type="button" title="Beispiel-Sendung hinzufügen" class="px-2.5 py-1.5 rounded-lg text-xs font-medium border border-line bg-surface hover:bg-zinc-50 text-muted hover:text-ink transition-colors">
-          + Test
-        </button>
-      </div>
+      <button id="btn-enable-notify" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-ink transition-colors">
+        Mitteilungen
+      </button>
     </div>
     <div class="max-w-xl mx-auto px-4 pb-2.5 flex items-center gap-1.5 overflow-x-auto">
       <button type="button" data-filter="all" class="filter-pill px-3 py-1 rounded-full text-xs font-medium bg-ink text-white">Alle</button>
@@ -1078,12 +1049,9 @@
   <div id="toast-box" class="fixed bottom-5 left-4 right-4 max-w-xl mx-auto z-30 pointer-events-none space-y-2"></div>
 
   <script>
-    const SHARED_STORAGE_KEY = 'pult_iphone_shared_v1';
-    const BRIDGE_TRANSFER_KEY = 'pult_bridge_last_packet';
-    const broadcastChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('pult_mac_iphone_channel') : null;
-
+    const RECEIVER_STORAGE_KEY = 'pult_receiver_items_v1';
     let activeFilter = 'all';
-    let sharedState = loadSharedState();
+    let receiverItems = loadReceiverItems();
 
     function getTodayISO() {
       const now = new Date();
@@ -1130,66 +1098,23 @@
       el.innerHTML = '<div><p class="font-semibold">' + escapeText(title) + '</p><p class="text-zinc-300 mt-0.5">' + escapeText(body) + '</p></div><button type="button" class="text-zinc-400 hover:text-white">✕</button>';
       el.querySelector('button').addEventListener('click', () => el.remove());
       box.appendChild(el);
-      setTimeout(() => el.remove(), 5000);
+      setTimeout(() => el.remove(), 4500);
     }
 
-    function notifyUser(title, body) {
-      showToast(title, body);
-      if ('Notification' in window && Notification.permission === 'granted') {
-        try { new Notification('pult. · ' + title, { body }); } catch (err) {}
-      }
-    }
-
-    function createDefaultSharedState() {
-      return {
-        pairedMac: ${safeMacLiteral},
-        items: [
-          {
-            id: 'sh_1',
-            kind: 'reminder',
-            title: 'Zahnarzt anrufen',
-            date: '2026-11-23',
-            time: '09:00',
-            desk: 'Privat',
-            completed: false
-          },
-          {
-            id: 'sh_2',
-            kind: 'event',
-            title: 'Besprechung',
-            date: '2026-11-23',
-            time: '14:00–15:30',
-            desk: 'Projekte',
-            completed: false
-          },
-          {
-            id: 'sh_3',
-            kind: 'note',
-            title: 'Packliste & Unterlagen für unterwegs vom Mac geteilt',
-            date: '2026-11-24',
-            time: '',
-            desk: 'Privat',
-            completed: false
-          }
-        ]
-      };
-    }
-
-    function loadSharedState() {
+    function loadReceiverItems() {
       try {
-        const raw = localStorage.getItem(SHARED_STORAGE_KEY);
-        if (!raw) return createDefaultSharedState();
+        const raw = localStorage.getItem(RECEIVER_STORAGE_KEY);
+        if (!raw) return [];
         const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed.items)) return createDefaultSharedState();
-        return parsed;
+        return Array.isArray(parsed) ? parsed : [];
       } catch (err) {
-        return createDefaultSharedState();
+        return [];
       }
     }
 
-    function saveSharedState() {
+    function saveReceiverItems() {
       try {
-        localStorage.setItem(SHARED_STORAGE_KEY, JSON.stringify(sharedState));
+        localStorage.setItem(RECEIVER_STORAGE_KEY, JSON.stringify(receiverItems));
       } catch (err) {}
     }
 
@@ -1199,97 +1124,82 @@
       return (div.textContent || div.innerText || '').replace(/\\s+/g, ' ').trim();
     }
 
-    function ingestPacket(packet, fromMac) {
+    function applyIncomingPacket(packet) {
       if (!packet) return;
-      if (fromMac) sharedState.pairedMac = fromMac;
       const fallbackDate = getTodayISO();
+      const added = [];
 
-      if (packet.kind === 'entry' && packet.data) {
-        const d = packet.data;
-        sharedState.items.unshift({
-          id: 'sh_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-          kind: d.type === 'event' ? 'event' : 'reminder',
-          title: d.title || 'Eintrag',
-          date: d.date || fallbackDate,
-          time: d.type === 'event' ? (d.endTime ? d.startTime + '–' + d.endTime : d.startTime) : (d.startTime || '09:00'),
-          desk: packet.deskName || 'Privat',
-          completed: !!d.completed
+      if (packet.kind === 'reminders' && Array.isArray(packet.entries)) {
+        packet.entries.forEach(function(ent) {
+          added.push({
+            id: 'rcv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            kind: 'reminder',
+            title: ent.title || 'Erinnerung',
+            date: ent.date || fallbackDate,
+            time: ent.startTime || '09:00',
+            desk: ent.deskName || '',
+            completed: !!ent.completed
+          });
         });
-        notifyUser(d.type === 'event' ? 'Kalender geteilt' : 'Erinnerung geteilt', d.title || 'Neuer Eintrag');
-      } else if (packet.kind === 'snippet' && packet.text) {
-        sharedState.items.unshift({
-          id: 'sh_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-          kind: 'note',
-          title: packet.text,
-          date: fallbackDate,
-          time: '',
-          desk: 'Mac',
-          completed: false
+      } else if (packet.kind === 'events' && Array.isArray(packet.entries)) {
+        packet.entries.forEach(function(ent) {
+          added.push({
+            id: 'rcv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            kind: 'event',
+            title: ent.title || 'Ereignis',
+            date: ent.date || fallbackDate,
+            time: ent.endTime ? (ent.startTime + '–' + ent.endTime) : (ent.startTime || '09:00'),
+            desk: ent.deskName || '',
+            completed: false
+          });
         });
-        notifyUser('Notiz geteilt', packet.text);
       } else if (packet.kind === 'desk' && packet.data) {
-        if (Array.isArray(packet.entries) && packet.entries.length > 0) {
+        if (Array.isArray(packet.entries)) {
           packet.entries.forEach(function(ent) {
-            sharedState.items.unshift({
-              id: 'sh_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            added.push({
+              id: 'rcv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
               kind: ent.type === 'event' ? 'event' : 'reminder',
               title: ent.title || 'Eintrag',
               date: ent.date || fallbackDate,
-              time: ent.type === 'event' ? (ent.endTime ? ent.startTime + '–' + ent.endTime : ent.startTime) : (ent.startTime || '09:00'),
-              desk: packet.data.name || 'Schreibtisch',
+              time: ent.type === 'event' ? (ent.endTime ? (ent.startTime + '–' + ent.endTime) : ent.startTime) : (ent.startTime || '09:00'),
+              desk: packet.data.name || '',
               completed: !!ent.completed
             });
           });
         }
         const plain = stripHtmlToText(packet.data.content);
         if (plain) {
-          sharedState.items.unshift({
-            id: 'sh_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          added.push({
+            id: 'rcv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
             kind: 'note',
-            title: plain.slice(0, 220),
+            title: plain,
             date: fallbackDate,
             time: '',
-            desk: packet.data.name || 'Schreibtisch',
+            desk: packet.data.name || '',
             completed: false
           });
         }
-        notifyUser('Schreibtisch geteilt', packet.data.name || 'Schreibtisch');
-      } else if (packet.kind === 'bundle' && Array.isArray(packet.entries)) {
-        packet.entries.forEach(function(ent) {
-          sharedState.items.unshift({
-            id: 'sh_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-            kind: ent.type === 'event' ? 'event' : 'reminder',
-            title: ent.title || 'Eintrag',
-            date: ent.date || fallbackDate,
-            time: ent.type === 'event' ? (ent.endTime ? ent.startTime + '–' + ent.endTime : ent.startTime) : (ent.startTime || '09:00'),
-            desk: 'Mac',
-            completed: !!ent.completed
-          });
-        });
-        notifyUser('Einträge geteilt', packet.entries.length + ' Einträge übernommen');
       }
 
-      saveSharedState();
-      renderTimeline();
+      if (added.length > 0) {
+        receiverItems = added.concat(receiverItems);
+        saveReceiverItems();
+        showToast('Übernommen', added.length + ' geteilte Einträge in der Datumsliste.');
+      }
     }
 
-    function consumeIncomingUrl() {
-      const params = new URLSearchParams(window.location.search);
-      const pair = params.get('pair');
-      if (pair) sharedState.pairedMac = pair;
-
+    function consumeHashPayload() {
       const hash = window.location.hash || '';
-      if (hash.indexOf('#receive=') === 0) {
+      if (hash.indexOf('#data=') === 0) {
         try {
-          const encoded = hash.slice('#receive='.length);
+          const encoded = hash.slice('#data='.length);
           const json = decodeURIComponent(escape(atob(encoded)));
           const payload = JSON.parse(json);
           if (payload && payload.packet) {
-            ingestPacket(payload.packet, payload.fromMac);
+            applyIncomingPacket(payload.packet);
           }
         } catch (err) {}
       }
-      saveSharedState();
     }
 
     function renderBadge(kind) {
@@ -1306,7 +1216,7 @@
       const container = document.getElementById('shared-timeline');
       const todayISO = getTodayISO();
 
-      const filtered = sharedState.items.filter(function(item) {
+      const filtered = receiverItems.filter(function(item) {
         if (activeFilter === 'all') return true;
         return item.kind === activeFilter;
       });
@@ -1346,7 +1256,7 @@
               cb.className = 'pult-check';
               cb.addEventListener('change', function() {
                 item.completed = cb.checked;
-                saveSharedState();
+                saveReceiverItems();
                 renderTimeline();
               });
               left.appendChild(cb);
@@ -1378,12 +1288,6 @@
 
         container.appendChild(block);
       });
-
-      const pairEl = document.getElementById('pair-status-label');
-      if (pairEl) {
-        const code = (sharedState.pairedMac || '').slice(-4).toUpperCase() || 'BEREIT';
-        pairEl.textContent = 'Ein Schreibtisch für alles vom Mac · Mac-Code: ' + code;
-      }
     }
 
     document.querySelectorAll('.filter-pill').forEach(function(btn) {
@@ -1402,41 +1306,10 @@
     document.getElementById('btn-enable-notify').addEventListener('click', async function() {
       if (!('Notification' in window)) return;
       const perm = await Notification.requestPermission();
-      showToast('Mitteilungen', perm === 'granted' ? 'Mitteilungen sind aktiviert.' : 'Nicht erlaubt.');
+      showToast('Mitteilungen', perm === 'granted' ? 'Aktiviert.' : 'Nicht erlaubt.');
     });
 
-    document.getElementById('btn-demo-item').addEventListener('click', function() {
-      ingestPacket({
-        kind: 'entry',
-        deskName: 'Privat',
-        data: {
-          type: 'reminder',
-          title: 'Paket von der Abholstation holen',
-          date: addDaysISO(getTodayISO(), 1),
-          startTime: '11:00',
-          completed: false
-        }
-      }, sharedState.pairedMac);
-    });
-
-    if (broadcastChannel) {
-      broadcastChannel.onmessage = function(event) {
-        if (event.data && event.data.packet) {
-          ingestPacket(event.data.packet, event.data.fromMac);
-        }
-      };
-    }
-
-    window.addEventListener('storage', function(e) {
-      if (e.key === BRIDGE_TRANSFER_KEY && e.newValue) {
-        try {
-          const tr = JSON.parse(e.newValue);
-          if (tr && tr.packet) ingestPacket(tr.packet, tr.fromMac);
-        } catch (err) {}
-      }
-    });
-
-    consumeIncomingUrl();
+    consumeHashPayload();
     renderTimeline();
   ${endScriptTag}
 </body>
@@ -1454,7 +1327,7 @@
       link.click();
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast('receiver.html heruntergeladen', 'Die eigenständige iPhone-Datei receiver.html wurde gespeichert.');
+      showToast('receiver.html heruntergeladen', 'Lege die Datei neben deiner index.html ab.');
     }
 
     function openReceiverInNewTab() {
@@ -1465,98 +1338,34 @@
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     }
 
-    function renderMatrixQR(container, text) {
-      if (!container) return;
-      const size = 21;
-      let hash = 2166136261;
-      for (let i = 0; i < text.length; i++) {
-        hash ^= text.charCodeAt(i);
-        hash = Math.imul(hash, 16777619);
-      }
+    function updateExportCounts() {
+      const allEntries = Object.values(state.entries);
+      const remindersCount = allEntries.filter(e => e.type === 'reminder').length;
+      const eventsCount = allEntries.filter(e => e.type === 'event').length;
+      const desk = getActiveDesk();
 
-      const isFinder = (r, c) => {
-        const inTopLeft = r < 7 && c < 7;
-        const inTopRight = r < 7 && c >= size - 7;
-        const inBottomLeft = r >= size - 7 && c < 7;
-        if (!inTopLeft && !inTopRight && !inBottomLeft) return null;
-        const lr = inBottomLeft ? r - (size - 7) : r;
-        const lc = inTopRight ? c - (size - 7) : c;
-        if (lr === 0 || lr === 6 || lc === 0 || lc === 6) return true;
-        if (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4) return true;
-        return false;
-      };
+      const remEl = document.getElementById('count-export-reminders');
+      const evEl = document.getElementById('count-export-events');
+      const deskLabelEl = document.getElementById('label-export-current-desk');
 
-      let rects = '';
-      for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-          const finder = isFinder(r, c);
-          let filled = false;
-          if (finder !== null) {
-            filled = finder;
-          } else {
-            const seed = (hash ^ (r * 37 + c * 91 + text.length)) >>> 0;
-            filled = (seed % 3 === 0) || ((r + c + text.charCodeAt((r * c) % Math.max(1, text.length))) % 5 === 0);
-          }
-          if (filled) {
-            rects += `<rect x="${c}" y="${r}" width="1" height="1" fill="#18181B"/>`;
-          }
-        }
-      }
-      container.innerHTML = `<svg viewBox="0 0 ${size} ${size}" class="w-full h-full" shape-rendering="crispEdges">${rects}</svg>`;
+      if (remEl) remEl.textContent = String(remindersCount);
+      if (evEl) evEl.textContent = String(eventsCount);
+      if (deskLabelEl) deskLabelEl.textContent = `Alles vom aktuellen Schreibtisch (${desk.name})`;
     }
 
-    function refreshMacReceiverLink() {
-      const url = buildReceiverUrl(null);
-      const input = document.getElementById('receiver-link-input');
-      const qrBox = document.getElementById('receiver-qr-box');
-      if (input) input.value = url;
-      renderMatrixQR(qrBox, url);
-    }
-
-    async function sendPacketToIPhone(packet, labelText) {
-      const shareUrl = buildReceiverUrl(packet);
-
-      try {
-        localStorage.setItem(BRIDGE_TRANSFER_KEY, JSON.stringify({
-          id: generateId('pkt'),
-          fromMac: state.deviceId,
-          ts: Date.now(),
-          packet
-        }));
-      } catch (err) {}
-
-      try {
-        if (broadcastChannel) {
-          broadcastChannel.postMessage({ fromMac: state.deviceId, ts: Date.now(), packet });
-        }
-      } catch (err) {}
-
-      if (state.relayUrl) {
-        try {
-          await fetch(state.relayUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              fromMac: state.deviceId,
-              title: `pult. · ${labelText}`,
-              body: packet.summary || labelText,
-              url: shareUrl,
-              packet
-            })
-          });
-          showToast('An iPhone gesendet', `„${labelText}“ wurde über dein Push-Relay verschickt.`, 'blue');
-          return;
-        } catch (err) {}
-      }
+    async function sharePacketViaLink(packet, labelText) {
+      const shareUrl = buildReceiverShareUrl(packet);
+      const linkInput = document.getElementById('receiver-link-input');
+      if (linkInput) linkInput.value = shareUrl;
 
       if (navigator.share) {
         try {
           await navigator.share({
             title: `pult. · ${labelText}`,
-            text: `Für deinen iPhone-Schreibtisch (receiver.html): ${labelText}`,
+            text: `pult. (${labelText})`,
             url: shareUrl
           });
-          showToast('Gesendet', `„${labelText}“ wurde zum Teilen übergeben.`, 'blue');
+          showToast('Geteilt', `${labelText} wurde über das Teilen-Menü / AirDrop übergeben.`);
           return;
         } catch (err) {
           if (err && err.name === 'AbortError') return;
@@ -1564,12 +1373,63 @@
       }
 
       copyTextFallback(shareUrl);
-      const input = document.getElementById('receiver-link-input');
-      const qrBox = document.getElementById('receiver-qr-box');
-      if (input) input.value = shareUrl;
-      renderMatrixQR(qrBox, shareUrl);
-      openBridgeModal();
-      showToast('Sendepaket bereit', 'Receiver-Link kopiert – per AirDrop/Nachricht senden oder QR scannen.', 'blue');
+      showToast('Link kopiert', 'Der GitHub-Link mit den geteilten Daten wurde kopiert.');
+    }
+
+    function buildRemindersPacket() {
+      const entries = Object.values(state.entries)
+        .filter(e => e.type === 'reminder')
+        .map(e => {
+          const desk = state.desks.find(d => d.id === e.deskId);
+          return {
+            title: e.title,
+            date: e.date,
+            startTime: e.startTime,
+            completed: !!e.completed,
+            deskName: desk ? desk.name : ''
+          };
+        });
+      return { kind: 'reminders', entries };
+    }
+
+    function buildEventsPacket() {
+      const entries = Object.values(state.entries)
+        .filter(e => e.type === 'event')
+        .map(e => {
+          const desk = state.desks.find(d => d.id === e.deskId);
+          return {
+            title: e.title,
+            date: e.date,
+            startTime: e.startTime,
+            endTime: e.endTime || '',
+            deskName: desk ? desk.name : ''
+          };
+        });
+      return { kind: 'events', entries };
+    }
+
+    function buildCurrentDeskPacket() {
+      const desk = getActiveDesk();
+      desk.content = editorEl.innerHTML;
+      const entries = Object.values(state.entries)
+        .filter(e => e.deskId === desk.id)
+        .map(e => ({
+          type: e.type,
+          title: e.title,
+          date: e.date,
+          startTime: e.startTime,
+          endTime: e.endTime || '',
+          completed: !!e.completed
+        }));
+
+      return {
+        kind: 'desk',
+        data: {
+          name: desk.name,
+          content: desk.content
+        },
+        entries
+      };
     }
 
     // =========================================================================
@@ -2339,30 +2199,33 @@
       if (!entry) return;
       const desk = state.desks.find(d => d.id === entry.deskId);
       closeEntryPopover();
-      sendPacketToIPhone(
-        {
-          kind: 'entry',
-          deskName: desk ? desk.name : 'Privat',
-          summary: `${entry.title} (${formatGermanDateShort(entry.date)}, ${entry.startTime})`,
-          data: entry
-        },
-        entry.title
-      );
+      const packet = entry.type === 'event'
+        ? {
+            kind: 'events',
+            entries: [{
+              title: entry.title,
+              date: entry.date,
+              startTime: entry.startTime,
+              endTime: entry.endTime || '',
+              deskName: desk ? desk.name : ''
+            }]
+          }
+        : {
+            kind: 'reminders',
+            entries: [{
+              title: entry.title,
+              date: entry.date,
+              startTime: entry.startTime,
+              completed: !!entry.completed,
+              deskName: desk ? desk.name : ''
+            }]
+          };
+      sharePacketViaLink(packet, entry.title);
     });
 
     document.getElementById('btn-send-desk').addEventListener('click', () => {
       const desk = getActiveDesk();
-      desk.content = editorEl.innerHTML;
-      const linkedEntries = Object.values(state.entries).filter(e => e.deskId === desk.id);
-      sendPacketToIPhone(
-        {
-          kind: 'desk',
-          summary: `Schreibtisch „${desk.name}“`,
-          data: { name: desk.name, content: desk.content },
-          entries: linkedEntries
-        },
-        `Schreibtisch „${desk.name}“`
-      );
+      sharePacketViaLink(buildCurrentDeskPacket(), `Schreibtisch „${desk.name}“`);
     });
 
     document.getElementById('btn-selection-send').addEventListener('click', () => {
@@ -2371,17 +2234,24 @@
       selectionToolbar.classList.add('hidden');
       selectionToolbar.classList.remove('flex');
       if (!text) return;
-      sendPacketToIPhone(
-        { kind: 'snippet', summary: text, text },
+      const desk = getActiveDesk();
+      sharePacketViaLink(
+        {
+          kind: 'desk',
+          data: { name: desk.name, content: `<p>${escapeHTML(text)}</p>` },
+          entries: []
+        },
         text.slice(0, 36)
       );
     });
 
     const bridgeModal = document.getElementById('bridge-modal');
     function openBridgeModal() {
-      refreshMacReceiverLink();
-      const relayInput = document.getElementById('relay-url-input');
-      if (relayInput) relayInput.value = state.relayUrl || '';
+      updateExportCounts();
+      const baseInput = document.getElementById('github-receiver-base-input');
+      if (baseInput) baseInput.value = state.githubReceiverUrl || DEFAULT_GITHUB_RECEIVER_URL;
+      const linkInput = document.getElementById('receiver-link-input');
+      if (linkInput) linkInput.value = buildReceiverShareUrl(buildCurrentDeskPacket());
       bridgeModal.classList.remove('hidden');
       bridgeModal.classList.add('flex');
     }
@@ -2398,65 +2268,38 @@
       }
     });
 
-    document.getElementById('btn-copy-receiver-link').addEventListener('click', () => {
-      const val = document.getElementById('receiver-link-input').value;
-      copyTextFallback(val);
-      showToast('Receiver-Link kopiert', 'Füge ihn auf dem iPhone ein oder sende ihn per Nachricht.');
+    document.getElementById('github-receiver-base-input').addEventListener('change', () => {
+      getNormalizedGithubReceiverUrl();
+      const linkInput = document.getElementById('receiver-link-input');
+      if (linkInput) linkInput.value = buildReceiverShareUrl(buildCurrentDeskPacket());
     });
 
-    document.getElementById('btn-share-receiver-link').addEventListener('click', async () => {
-      const url = document.getElementById('receiver-link-input').value;
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: 'pult. iPhone Receiver',
-            text: 'Öffne receiver.html auf dem iPhone, um Geteiltes vom Mac in der Datumsliste zu sehen:',
-            url
-          });
-          return;
-        } catch (err) {}
-      }
-      copyTextFallback(url);
-      showToast('Link kopiert', 'Link wurde in die Zwischenablage kopiert.');
+    document.getElementById('btn-copy-receiver-link').addEventListener('click', () => {
+      const input = document.getElementById('receiver-link-input');
+      const val = input.value || buildReceiverShareUrl(buildCurrentDeskPacket());
+      input.value = val;
+      copyTextFallback(val);
+      showToast('Link kopiert', 'Der GitHub-Link zu receiver.html wurde kopiert.');
     });
 
     document.getElementById('btn-download-receiver-html').addEventListener('click', downloadReceiverHtmlFile);
     document.getElementById('btn-open-receiver-tab').addEventListener('click', openReceiverInNewTab);
 
-    document.getElementById('btn-quick-send-desk').addEventListener('click', () => {
-      bridgeModal.classList.add('hidden');
-      bridgeModal.classList.remove('flex');
-      document.getElementById('btn-send-desk').click();
+    document.getElementById('btn-share-reminders').addEventListener('click', () => {
+      sharePacketViaLink(buildRemindersPacket(), 'Alle Erinnerungen');
     });
 
-    document.getElementById('btn-quick-send-upcoming').addEventListener('click', () => {
-      const openEntries = Object.values(state.entries).filter(e => !e.completed);
-      if (openEntries.length === 0) {
-        showToast('Keine offenen Einträge', 'Erstelle zuerst eine Erinnerung mit @.');
-        return;
-      }
-      bridgeModal.classList.add('hidden');
-      bridgeModal.classList.remove('flex');
-      sendPacketToIPhone(
-        {
-          kind: 'bundle',
-          summary: `${openEntries.length} offene Einträge`,
-          entries: openEntries
-        },
-        `${openEntries.length} Erinnerungen & Termine`
-      );
+    document.getElementById('btn-share-events').addEventListener('click', () => {
+      sharePacketViaLink(buildEventsPacket(), 'Alle Ereignisse');
     });
 
-    document.getElementById('btn-save-relay').addEventListener('click', () => {
-      state.relayUrl = document.getElementById('relay-url-input').value.trim();
-      saveState(true);
-      showToast('Relay gespeichert', state.relayUrl ? 'Push-Relay ist aktiv.' : 'Push-Relay deaktiviert.');
+    document.getElementById('btn-share-current-desk').addEventListener('click', () => {
+      const desk = getActiveDesk();
+      sharePacketViaLink(buildCurrentDeskPacket(), `Schreibtisch „${desk.name}“`);
     });
 
-    document.getElementById('btn-copy-worker-code').addEventListener('click', () => {
-      const workerSnippet = `export default {\n  async fetch(request, env) {\n    if (request.method === 'OPTIONS') return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*' } });\n    if (request.method === 'POST') {\n      const payload = await request.json();\n      await env.PULT_KV.put('latest', JSON.stringify(payload));\n      return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });\n    }\n    const latest = await env.PULT_KV.get('latest');\n    return new Response(latest || '{}', { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });\n  }\n};`;
-      copyTextFallback(workerSnippet);
-      showToast('Worker-Code kopiert', 'Bereit zum Einfügen in Cloudflare Workers.');
+    document.getElementById('btn-export-json-from-bridge')?.addEventListener('click', () => {
+      document.getElementById('btn-export-json')?.click();
     });
 
     entryPopover.addEventListener('click', (e) => {
@@ -2569,6 +2412,8 @@
       const statusText = document.getElementById('notification-status-text');
       const reqBtn = document.getElementById('btn-request-permission');
 
+      if (!statusText || !reqBtn) return;
+
       if (!('Notification' in window)) {
         statusText.textContent = 'Browser unterstützt keine System-Mitteilungen (In-App aktiv).';
         reqBtn.classList.add('hidden');
@@ -2576,16 +2421,16 @@
       }
 
       if (Notification.permission === 'granted') {
-        bannerBtn.classList.add('hidden');
+        bannerBtn?.classList.add('hidden');
         statusText.textContent = 'Aktiviert – du wirst pünktlich erinnert.';
         reqBtn.textContent = 'Aktiv';
         reqBtn.disabled = true;
       } else if (Notification.permission === 'denied') {
-        bannerBtn.classList.add('hidden');
+        bannerBtn?.classList.add('hidden');
         statusText.textContent = 'Im Browser blockiert (In-App-Hinweise bleiben aktiv).';
         reqBtn.classList.add('hidden');
       } else {
-        bannerBtn.classList.remove('hidden');
+        bannerBtn?.classList.remove('hidden');
         statusText.textContent = 'Noch nicht erlaubt.';
         reqBtn.classList.remove('hidden');
       }
@@ -2599,9 +2444,9 @@
       } catch (err) {}
     }
 
-    document.getElementById('btn-notify-banner').addEventListener('click', requestNotificationPermission);
-    document.getElementById('btn-request-permission').addEventListener('click', requestNotificationPermission);
-    document.getElementById('btn-test-notification').addEventListener('click', () => {
+    document.getElementById('btn-notify-banner')?.addEventListener('click', requestNotificationPermission);
+    document.getElementById('btn-request-permission')?.addEventListener('click', requestNotificationPermission);
+    document.getElementById('btn-test-notification')?.addEventListener('click', () => {
       triggerSystemNotification('Erinnerung · 09:00', 'Zahnarzt anrufen (Schreibtisch: Privat)', 'amber');
     });
 
@@ -2629,23 +2474,23 @@
     }, 15000);
 
     const settingsModal = document.getElementById('settings-modal');
-    document.getElementById('btn-settings').addEventListener('click', () => {
+    document.getElementById('btn-settings')?.addEventListener('click', () => {
       updateNotificationUI();
-      settingsModal.classList.remove('hidden');
-      settingsModal.classList.add('flex');
+      settingsModal?.classList.remove('hidden');
+      settingsModal?.classList.add('flex');
     });
-    document.getElementById('btn-close-settings').addEventListener('click', () => {
-      settingsModal.classList.add('hidden');
-      settingsModal.classList.remove('flex');
+    document.getElementById('btn-close-settings')?.addEventListener('click', () => {
+      settingsModal?.classList.add('hidden');
+      settingsModal?.classList.remove('flex');
     });
-    settingsModal.addEventListener('click', (e) => {
+    settingsModal?.addEventListener('click', (e) => {
       if (e.target === settingsModal) {
         settingsModal.classList.add('hidden');
         settingsModal.classList.remove('flex');
       }
     });
 
-    document.getElementById('btn-export-json').addEventListener('click', () => {
+    document.getElementById('btn-export-json')?.addEventListener('click', () => {
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -2656,7 +2501,7 @@
       showToast('Backup erstellt', 'Deine Daten wurden als JSON-Datei heruntergeladen.');
     });
 
-    document.getElementById('input-import-json').addEventListener('change', (e) => {
+    document.getElementById('input-import-json')?.addEventListener('change', (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
       const reader = new FileReader();
@@ -2667,8 +2512,8 @@
           state = imported;
           saveState(true);
           initApp();
-          settingsModal.classList.add('hidden');
-          settingsModal.classList.remove('flex');
+          settingsModal?.classList.add('hidden');
+          settingsModal?.classList.remove('flex');
           showToast('Backup geladen', 'Alle Schreibtische und Einträge wurden wiederhergestellt.');
         } catch (err) {
           showToast('Import fehlgeschlagen', 'Die ausgewählte Datei ist kein gültiges pult.-Backup.');
@@ -2677,7 +2522,7 @@
       reader.readAsText(file);
     });
 
-    document.getElementById('btn-reset-demo').addEventListener('click', () => {
+    document.getElementById('btn-reset-demo')?.addEventListener('click', () => {
       openConfirmDialog(
         'Beispieldaten wiederherstellen?',
         'Deine aktuellen Notizen werden durch die ursprünglichen Beispiel-Schreibtische ersetzt.',
@@ -2685,8 +2530,8 @@
           state = createInitialState();
           saveState(true);
           initApp();
-          settingsModal.classList.add('hidden');
-          settingsModal.classList.remove('flex');
+          settingsModal?.classList.add('hidden');
+          settingsModal?.classList.remove('flex');
           showToast('Zurückgesetzt', 'Die Beispieldaten wurden geladen.');
         }
       );
@@ -2721,8 +2566,8 @@
         closeEntryPopover();
         bridgeModal.classList.add('hidden');
         bridgeModal.classList.remove('flex');
-        settingsModal.classList.add('hidden');
-        settingsModal.classList.remove('flex');
+        settingsModal?.classList.add('hidden');
+        settingsModal?.classList.remove('flex');
         confirmModal.classList.add('hidden');
         confirmModal.classList.remove('flex');
       }
