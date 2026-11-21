@@ -1,0 +1,2624 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="pult." />
+  <meta name="theme-color" content="#FBFBF9" />
+  <link id="pwa-manifest-link" rel="manifest" />
+  <link id="apple-touch-icon-link" rel="apple-touch-icon" />
+  <title>pult. – Digitaler Schreibtisch</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+          colors: {
+            paper: '#FBFBF9',
+            surface: '#FFFFFF',
+            ink: '#18181B',
+            muted: '#71717A',
+            subtle: '#A1A1AA',
+            line: '#E4E4E7',
+            amberAccent: '#B45309',
+            amberSoft: '#FEF3C7',
+            blueAccent: '#1D4ED8',
+            blueSoft: '#DBEAFE',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #FBFBF9;
+      color: #18181B;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #E4E4E7;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #D4D4D8;
+    }
+
+    /* Schreibbereich Typografie & Struktur */
+    #editor {
+      outline: none;
+      line-height: 1.75;
+      font-size: 1.025rem;
+      color: #18181B;
+      min-height: 60vh;
+      word-break: break-word;
+    }
+
+    #editor:empty::before {
+      content: attr(data-placeholder);
+      color: #A1A1AA;
+      pointer-events: none;
+      display: block;
+    }
+
+    #editor h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.3;
+      margin-top: 0.25rem;
+      margin-bottom: 0.75rem;
+      color: #18181B;
+    }
+
+    #editor h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      line-height: 1.4;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #18181B;
+    }
+
+    #editor p, #editor div.editor-line {
+      margin-bottom: 0.55rem;
+    }
+
+    #editor ul {
+      list-style-type: disc;
+      padding-left: 1.35rem;
+      margin-bottom: 0.75rem;
+    }
+
+    #editor li {
+      margin-bottom: 0.25rem;
+    }
+
+    /* Interaktive To-Do Zeilen im Editor */
+    .pult-todo {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.625rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.65;
+    }
+
+    .pult-todo-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 1.05rem;
+      height: 1.05rem;
+      min-width: 1.05rem;
+      margin-top: 0.34rem;
+      border: 1.5px solid #A1A1AA;
+      border-radius: 5px;
+      background-color: #FFFFFF;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .pult-todo-checkbox:hover {
+      border-color: #18181B;
+    }
+
+    .pult-todo-checkbox:checked {
+      background-color: #18181B;
+      border-color: #18181B;
+    }
+
+    .pult-todo-checkbox:checked::after {
+      content: "";
+      width: 0.32rem;
+      height: 0.55rem;
+      border: solid #FFFFFF;
+      border-width: 0 1.75px 1.75px 0;
+      transform: rotate(45deg);
+      margin-bottom: 1px;
+    }
+
+    .pult-todo-text {
+      flex: 1;
+      outline: none;
+    }
+
+    .pult-todo.completed .pult-todo-text {
+      text-decoration: line-through;
+      color: #A1A1AA;
+    }
+
+    /* Inline Chips für Erinnerungen & Kalenderereignisse */
+    .pult-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.12rem 0.55rem;
+      margin: 0 0.12rem;
+      border-radius: 9999px;
+      font-size: 0.86rem;
+      font-weight: 500;
+      line-height: 1.45;
+      cursor: pointer;
+      user-select: none;
+      vertical-align: baseline;
+      border: 1px solid transparent;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .pult-chip[data-type="reminder"] {
+      background-color: #FEF3C7;
+      color: #92400E;
+      border-color: #FDE68A;
+    }
+
+    .pult-chip[data-type="reminder"]:hover {
+      background-color: #FDE68A;
+    }
+
+    .pult-chip[data-type="event"] {
+      background-color: #EFF6FF;
+      color: #1E40AF;
+      border-color: #DBEAFE;
+    }
+
+    .pult-chip[data-type="event"]:hover {
+      background-color: #DBEAFE;
+    }
+
+    .pult-chip.is-done {
+      background-color: #F4F4F5;
+      color: #A1A1AA;
+      border-color: #E4E4E7;
+      text-decoration: line-through;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-paper text-ink selection:bg-amber-100 selection:text-amber-950">
+
+  <!-- Obere ruhige Navigationsleiste -->
+  <header class="sticky top-0 z-30 bg-paper/90 backdrop-blur-md border-b border-line">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-3">
+      
+      <!-- Brand + Schreibtisch-Switcher -->
+      <div class="flex items-center gap-4 min-w-0 flex-1">
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="font-semibold tracking-tight text-lg text-ink">pult.</span>
+        </div>
+
+        <div class="h-4 w-[1px] bg-line shrink-0"></div>
+
+        <!-- Horizontale Schreibtisch-Tabs -->
+        <nav id="desk-tabs" aria-label="Schreibtische" class="flex items-center gap-1 overflow-x-auto no-scrollbar py-1"></nav>
+
+        <!-- Neuer Schreibtisch Button -->
+        <button id="btn-new-desk" type="button" title="Neuen Schreibtisch anlegen" class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-muted hover:text-ink hover:bg-zinc-200/60 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Rechts: Speicherstatus, Geräteerkennung & Einstellungen -->
+      <div class="flex items-center gap-2 shrink-0">
+        <span id="save-status" class="hidden md:inline-flex items-center gap-1.5 text-xs text-subtle select-none">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500/80"></span>
+          Gespeichert
+        </span>
+
+        <!-- Automatische Geräteerkennung & Receiver-Brücke -->
+        <button id="btn-device-bridge" type="button" title="Geräte-Modus & Mac ↔ iPhone Receiver" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200/80 text-ink transition-colors">
+          <span id="device-badge-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span id="device-badge-label">Mac</span>
+          <span class="text-subtle">↔</span>
+        </button>
+
+        <button id="btn-notify-banner" type="button" class="hidden text-xs font-medium px-2.5 py-1.5 rounded-lg bg-amberSoft text-amberAccent hover:bg-amber-200/70 transition-colors">
+          Mitteilungen
+        </button>
+
+        <button id="btn-settings" type="button" title="Einstellungen & Datensicherung" class="p-2 rounded-lg text-muted hover:text-ink hover:bg-zinc-200/60 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Ansichten-Umschalter (Nur unter lg sichtbar) -->
+    <div class="lg:hidden border-t border-line/70 bg-paper px-4 py-1.5 flex items-center justify-around gap-1">
+      <button type="button" data-mobile-view="editor" class="mobile-tab-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-ink bg-white shadow-xs border border-line/60">
+        Schreibtisch
+      </button>
+      <button type="button" data-mobile-view="reminders" class="mobile-tab-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-muted">
+        Erinnerungen <span id="mobile-rem-count" class="ml-1 text-[11px] text-subtle"></span>
+      </button>
+      <button type="button" data-mobile-view="calendar" class="mobile-tab-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-muted">
+        Kalender <span id="mobile-cal-count" class="ml-1 text-[11px] text-subtle"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hauptbereich: Split-View auf Desktop, fokussierte Einzelansicht auf Mobilgeräten -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- Linke Spalte: Freier Schreibbereich (7 von 12 Spalten auf Desktop) -->
+    <section id="panel-editor" class="lg:col-span-7 bg-surface border border-line/80 rounded-2xl p-6 sm:p-8 lg:p-10 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+      
+      <!-- Schreibtisch-Kopfzeile (Umbenennen, Senden & Löschen) -->
+      <div class="flex items-center justify-between gap-2 pb-5 mb-6 border-b border-line/60">
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+          <input
+            id="desk-title-input"
+            type="text"
+            aria-label="Name des Schreibtischs"
+            class="w-full text-xl sm:text-2xl font-semibold tracking-tight text-ink bg-transparent border-none outline-none focus:ring-0 p-0 placeholder:text-subtle"
+            placeholder="Schreibtisch benennen..."
+          />
+        </div>
+
+        <div class="flex items-center gap-1 shrink-0">
+          <button id="btn-send-desk" type="button" title="Diesen Schreibtisch an iPhone/iPad senden" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-zinc-100 transition-colors">
+            <span>↗</span>
+            <span class="hidden sm:inline">An iPhone</span>
+          </button>
+
+          <button id="btn-insert-entry" type="button" title="Erinnerung oder Termin einfügen (@)" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-ink hover:bg-zinc-100 transition-colors">
+            <span class="font-mono text-amberAccent font-semibold">@</span>
+            <span class="hidden sm:inline">Erinnern / Termin</span>
+          </button>
+
+          <button id="btn-delete-desk" type="button" title="Diesen Schreibtisch löschen" class="p-1.5 rounded-lg text-subtle hover:text-red-600 hover:bg-red-50 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dezente Formatierungsleiste -->
+      <div class="flex flex-wrap items-center gap-1 mb-5 pb-3 border-b border-line/40 text-xs text-muted select-none">
+        <button type="button" data-format="h1" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink font-semibold transition-colors" title="Überschrift 1 (# + Leerzeichen)">H1</button>
+        <button type="button" data-format="h2" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink font-semibold transition-colors" title="Überschrift 2 (## + Leerzeichen)">H2</button>
+        <button type="button" data-format="p" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink transition-colors" title="Normaler Text">Text</button>
+        <span class="h-3.5 w-[1px] bg-line mx-1"></span>
+        <button type="button" data-format="bold" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink font-bold transition-colors" title="Fett (Strg+B)">B</button>
+        <button type="button" data-format="italic" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink italic transition-colors" title="Kursiv (Strg+I)">I</button>
+        <span class="h-3.5 w-[1px] bg-line mx-1"></span>
+        <button type="button" data-format="ul" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink transition-colors" title="Aufzählung (- + Leerzeichen)">• Liste</button>
+        <button type="button" data-format="todo" class="px-2 py-1 rounded-md hover:bg-zinc-100 hover:text-ink transition-colors" title="Checkbox ([] + Leerzeichen)">☑ Aufgabe</button>
+        <span class="ml-auto hidden sm:inline text-[11px] text-subtle">Tipp: <code class="font-mono bg-zinc-100 px-1 py-0.5 rounded text-muted">@</code> tippen oder Text markieren</span>
+      </div>
+
+      <!-- Freier Schreibbereich -->
+      <div
+        id="editor"
+        contenteditable="true"
+        spellcheck="true"
+        data-placeholder="Beginne einfach zu schreiben … Nutze @ für Erinnerungen oder Termine."
+      ></div>
+    </section>
+
+    <!-- Rechte Spalte: Chronologische Erinnerungen & Kalender (5 von 12 Spalten auf Desktop) -->
+    <aside class="lg:col-span-5 space-y-6">
+      
+      <!-- Desktop-Filter / Ansichtsumschalter für rechte Spalte -->
+      <div class="hidden lg:flex items-center justify-between bg-surface border border-line/80 rounded-xl p-1">
+        <button type="button" data-side-filter="both" class="side-filter-btn flex-1 py-1.5 text-xs font-medium rounded-lg bg-zinc-100 text-ink transition-colors">
+          Übersicht
+        </button>
+        <button type="button" data-side-filter="reminders" class="side-filter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-muted hover:text-ink transition-colors">
+          Erinnerungen
+        </button>
+        <button type="button" data-side-filter="calendar" class="side-filter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-muted hover:text-ink transition-colors">
+          Kalender
+        </button>
+      </div>
+
+      <!-- Sektion: Erinnerungen (Chronologische Datumsliste) -->
+      <section id="panel-reminders" class="bg-surface border border-line/80 rounded-2xl p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <h2 class="text-sm font-semibold tracking-tight text-ink">Erinnerungen</h2>
+          </div>
+          <label class="inline-flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
+            <input id="toggle-show-completed" type="checkbox" class="rounded border-line text-ink focus:ring-0" />
+            <span>Erledigte zeigen</span>
+          </label>
+        </div>
+
+        <div id="reminders-list" class="space-y-4"></div>
+      </section>
+
+      <!-- Sektion: Kalender (Chronologische Datumsliste) -->
+      <section id="panel-calendar" class="bg-surface border border-line/80 rounded-2xl p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+            <h2 class="text-sm font-semibold tracking-tight text-ink">Kalender</h2>
+          </div>
+          <span class="text-xs text-subtle">Chronologisch</span>
+        </div>
+
+        <div id="calendar-list" class="space-y-4"></div>
+      </section>
+    </aside>
+  </main>
+
+  <!-- Floating Selection Action ("Erinnern / Termin" & "An iPhone" bei markiertem Text) -->
+  <div id="selection-toolbar" class="fixed z-40 hidden flex items-center gap-1 bg-ink text-white rounded-full shadow-lg p-1">
+    <button id="btn-selection-create" type="button" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium hover:bg-zinc-800 transition-all">
+      <span class="font-mono text-amber-300">@</span>
+      <span>Erinnern / Termin</span>
+    </button>
+    <span class="w-[1px] h-3.5 bg-zinc-700"></span>
+    <button id="btn-selection-send" type="button" class="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-zinc-200 hover:text-white hover:bg-zinc-800 transition-all">
+      <span>↗ iPhone</span>
+    </button>
+  </div>
+
+  <!-- Minimalistisches Popover zum Erstellen & Bearbeiten von Erinnerungen / Terminen -->
+  <div id="entry-popover" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/15 backdrop-blur-[1px] p-4">
+    <div class="bg-surface border border-line rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 space-y-4" role="dialog" aria-modal="true" aria-labelledby="popover-heading">
+      <div class="flex items-center justify-between">
+        <h3 id="popover-heading" class="text-sm font-semibold text-ink">Erinnerung oder Termin</h3>
+        <button id="btn-close-popover" type="button" class="p-1 rounded-lg text-muted hover:text-ink hover:bg-zinc-100">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Typ-Umschalter: Zeitpunkt (Erinnerung) vs. Zeitspanne (Kalender) -->
+      <div class="grid grid-cols-2 gap-1.5 p-1 bg-zinc-100 rounded-xl">
+        <button type="button" data-entry-type="reminder" class="entry-type-btn py-1.5 px-3 rounded-lg text-xs font-medium bg-white text-ink shadow-xs transition-all">
+          Zeitpunkt (Erinnerung)
+        </button>
+        <button type="button" data-entry-type="event" class="entry-type-btn py-1.5 px-3 rounded-lg text-xs font-medium text-muted hover:text-ink transition-all">
+          Zeitspanne (Kalender)
+        </button>
+      </div>
+
+      <!-- Formularfelder -->
+      <div class="space-y-3">
+        <div>
+          <label for="entry-title" class="block text-xs font-medium text-muted mb-1">Bezeichnung</label>
+          <input id="entry-title" type="text" placeholder="z. B. Zahnarzt anrufen" class="w-full px-3 py-2 text-sm bg-paper border border-line rounded-xl outline-none focus:border-ink transition-colors" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="entry-date" class="block text-xs font-medium text-muted mb-1">Datum</label>
+            <input id="entry-date" type="date" class="w-full px-3 py-2 text-sm bg-paper border border-line rounded-xl outline-none focus:border-ink transition-colors" />
+          </div>
+
+          <div id="time-fields-container" class="grid grid-cols-1 gap-2">
+            <div>
+              <label id="label-start-time" for="entry-start-time" class="block text-xs font-medium text-muted mb-1">Uhrzeit</label>
+              <input id="entry-start-time" type="time" value="09:00" class="w-full px-3 py-2 text-sm bg-paper border border-line rounded-xl outline-none focus:border-ink transition-colors" />
+            </div>
+            <div id="end-time-wrapper" class="hidden">
+              <label for="entry-end-time" class="block text-xs font-medium text-muted mb-1">Bis</label>
+              <input id="entry-end-time" type="time" value="10:00" class="w-full px-3 py-2 text-sm bg-paper border border-line rounded-xl outline-none focus:border-ink transition-colors" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aktionen -->
+      <div class="flex items-center justify-between pt-2 border-t border-line/60 gap-2">
+        <div class="flex items-center gap-1">
+          <button id="btn-delete-entry" type="button" class="hidden text-xs font-medium text-red-600 hover:text-red-700 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-colors">
+            Entfernen
+          </button>
+          <button id="btn-send-entry-popover" type="button" class="hidden text-xs font-medium text-ink px-2.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 transition-colors">
+            ↗ An iPhone
+          </button>
+        </div>
+        <div class="flex items-center gap-2 ml-auto">
+          <button id="btn-cancel-entry" type="button" class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-muted hover:text-ink hover:bg-zinc-100 transition-colors">
+            Abbrechen
+          </button>
+          <button id="btn-save-entry" type="button" class="px-4 py-1.5 rounded-xl text-xs font-medium bg-ink text-white hover:bg-zinc-800 transition-colors">
+            Speichern
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mac ↔ iPhone/iPad Sender & Receiver Modal -->
+  <div id="bridge-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/15 backdrop-blur-[1px] p-4">
+    <div class="bg-surface border border-line rounded-2xl shadow-xl w-full max-w-lg p-6 space-y-5 max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-semibold text-ink">Mac ↔ iPhone / iPad Brücke</h3>
+          <p id="bridge-detected-info" class="text-xs text-muted mt-0.5">Gerät wird erkannt …</p>
+        </div>
+        <button id="btn-close-bridge" type="button" class="p-1 rounded-lg text-muted hover:text-ink hover:bg-zinc-100">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Geräte-Rolle manuell umschalten (Auto / Mac / iPhone) -->
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-paper border border-line/80 rounded-xl p-2">
+        <span class="text-xs text-muted pl-2">Gerätemodus:</span>
+        <div class="flex gap-1">
+          <button type="button" data-set-device="auto" class="device-mode-btn px-2.5 py-1 rounded-lg text-xs font-medium transition-colors">Auto</button>
+          <button type="button" data-set-device="mac" class="device-mode-btn px-2.5 py-1 rounded-lg text-xs font-medium transition-colors">Mac</button>
+          <button type="button" data-set-device="iphone" class="device-mode-btn px-2.5 py-1 rounded-lg text-xs font-medium transition-colors">iPhone / iPad</button>
+        </div>
+      </div>
+
+      <!-- ANSICHT A: MAC SENDER-BEREICH -->
+      <div id="bridge-mac-view" class="space-y-4">
+        <div class="bg-paper border border-line rounded-xl p-4 space-y-3">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-muted">Schritt 1 · Receiver auf iPhone öffnen</p>
+              <p class="text-xs text-ink mt-1 leading-relaxed">
+                Öffne diesen Receiver-Link auf deinem iPhone oder iPad (per <strong>AirDrop</strong>, <strong>Nachrichten</strong> oder Kamera-Scan). Dort wird <code class="font-mono">pult.</code> automatisch als Empfänger eingerichtet.
+              </p>
+            </div>
+            <!-- Generierter QR-Code SVG -->
+            <div id="receiver-qr-box" class="shrink-0 w-24 h-24 bg-white border border-line rounded-xl p-1.5 flex items-center justify-center" title="Mit iPhone-Kamera scannen"></div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input id="receiver-link-input" type="text" readonly class="flex-1 text-xs font-mono bg-white border border-line rounded-lg px-2.5 py-2 text-muted outline-none" />
+            <button id="btn-copy-receiver-link" type="button" class="px-3 py-2 rounded-lg text-xs font-medium border border-line bg-white hover:bg-zinc-50 text-ink shrink-0">
+              Kopieren
+            </button>
+            <button id="btn-share-receiver-link" type="button" class="px-3 py-2 rounded-lg text-xs font-medium bg-ink text-white hover:bg-zinc-800 shrink-0">
+              AirDrop / Teilen
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <p class="text-xs font-semibold text-ink">Schritt 2 · Inhalte direkt ans iPhone schicken</p>
+          <p class="text-xs text-muted leading-relaxed">
+            Klicke in deinem Schreibtisch auf <strong>↗ An iPhone</strong> (oben am Schreibtisch, an einer markierten Textstelle oder in einer Erinnerung), um ein Paket für dein iPhone zu senden.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            <button id="btn-quick-send-desk" type="button" class="py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink text-left flex items-center justify-between">
+              <span>Aktuellen Schreibtisch senden</span>
+              <span>↗</span>
+            </button>
+            <button id="btn-quick-send-upcoming" type="button" class="py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink text-left flex items-center justify-between">
+              <span>Alle Erinnerungen senden</span>
+              <span>↗</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANSICHT B: IPHONE / IPAD RECEIVER-BEREICH -->
+      <div id="bridge-ios-view" class="hidden space-y-4">
+        <div class="bg-paper border border-line rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-ink">iPhone / iPad Receiver aktiv</span>
+            <span id="ios-pairing-badge" class="font-mono text-[11px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">Bereit</span>
+          </div>
+
+          <!-- Schritt 1: Als App installieren -->
+          <div id="ios-install-guide" class="text-xs text-muted bg-white border border-line/80 rounded-lg p-3 space-y-1">
+            <p class="font-medium text-ink">1. Als echte App installieren (für Mitteilungen nötig)</p>
+            <p class="leading-relaxed">Tippe in Safari unten auf <strong>Teilen (□↑)</strong> und wähle <strong>„Zum Home-Bildschirm“</strong>. Öffne danach <strong>pult.</strong> über das neue App-Icon.</p>
+          </div>
+
+          <!-- Schritt 2: Mitteilungen aktivieren -->
+          <div class="flex items-center justify-between gap-2 bg-white border border-line/80 rounded-lg p-3">
+            <div>
+              <p class="text-xs font-medium text-ink">2. Sperrbildschirm-Mitteilungen</p>
+              <p id="ios-push-status" class="text-[11px] text-muted">Erlaube Mitteilungen für eingehende Mac-Sendungen.</p>
+            </div>
+            <button id="btn-ios-enable-notify" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-ink text-white hover:bg-zinc-800 shrink-0">
+              Erlauben
+            </button>
+          </div>
+        </div>
+
+        <!-- Eingehende Sendungen / Posteingang -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-ink">Empfangene Sendungen vom Mac</span>
+            <button id="btn-simulate-receive" type="button" class="text-[11px] text-muted hover:text-ink underline">
+              Test-Empfang simulieren
+            </button>
+          </div>
+          <div id="received-log-list" class="space-y-1.5 text-xs text-muted">
+            <p class="py-2 text-subtle">Noch keine Sendungen empfangen.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optionales Push-Relay (Cloudflare Worker) für Hintergrund-Pushs -->
+      <details class="border-t border-line/70 pt-3 text-xs">
+        <summary class="cursor-pointer font-medium text-muted hover:text-ink select-none">
+          Optional: Hintergrund-Push-Relay verbinden (wenn iPhone-App geschlossen ist)
+        </summary>
+        <div class="mt-3 space-y-2.5 text-muted">
+          <p class="leading-relaxed">
+            Ohne Server werden Sendungen sofort übernommen, sobald du den Link auf dem iPhone öffnest (oder im selben Browser in einem zweiten Tab). Für echte Hintergrund-Pushs bei geschlossener App kannst du hier eine Cloudflare-Worker-URL hinterlegen:
+          </p>
+          <div class="flex gap-2">
+            <input id="relay-url-input" type="url" placeholder="https://pult-relay.dein-name.workers.dev" class="flex-1 px-2.5 py-1.5 text-xs font-mono bg-paper border border-line rounded-lg text-ink outline-none" />
+            <button id="btn-save-relay" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-ink">
+              Speichern
+            </button>
+          </div>
+          <button id="btn-copy-worker-code" type="button" class="text-[11px] text-ink underline hover:text-amberAccent">
+            Fertigen 12-Zeilen Cloudflare-Worker-Code kopieren
+          </button>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Einstellungs- & Datensicherungs-Modal -->
+  <div id="settings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/15 backdrop-blur-[1px] p-4">
+    <div class="bg-surface border border-line rounded-2xl shadow-xl w-full max-w-md p-6 space-y-5" role="dialog" aria-modal="true">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-semibold text-ink">Einstellungen & Daten</h3>
+        <button id="btn-close-settings" type="button" class="p-1 rounded-lg text-muted hover:text-ink hover:bg-zinc-100">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Benachrichtigungen -->
+      <div class="space-y-2 pb-4 border-b border-line/70">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-ink">Benachrichtigungen</p>
+            <p id="notification-status-text" class="text-xs text-muted">Status wird geprüft …</p>
+          </div>
+          <button id="btn-request-permission" type="button" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-ink transition-colors">
+            Aktivieren
+          </button>
+        </div>
+        <button id="btn-test-notification" type="button" class="w-full py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink transition-colors text-left flex items-center justify-between">
+          <span>Test-Benachrichtigung jetzt auslösen</span>
+          <span class="text-muted">→</span>
+        </button>
+      </div>
+
+      <!-- Lokale Sicherung & Synchronisation (JSON Export/Import) -->
+      <div class="space-y-2.5 pb-4 border-b border-line/70">
+        <p class="text-sm font-medium text-ink">Lokale Datensicherung & Transfer</p>
+        <p class="text-xs text-muted leading-relaxed">Alle Schreibtische, Notizen, Erinnerungen und Termine werden automatisch lokal gespeichert. Exportiere deine Daten als Datei für Backups oder andere Geräte.</p>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button id="btn-export-json" type="button" class="py-2 px-3 rounded-xl text-xs font-medium bg-ink text-white hover:bg-zinc-800 transition-colors">
+            Backup exportieren
+          </button>
+          <label class="py-2 px-3 rounded-xl text-xs font-medium border border-line hover:bg-paper text-ink transition-colors text-center cursor-pointer">
+            Backup importieren
+            <input id="input-import-json" type="file" accept=".json" class="hidden" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Zurücksetzen -->
+      <div class="flex items-center justify-between pt-1">
+        <span class="text-xs text-muted">Beispieldaten wiederherstellen</span>
+        <button id="btn-reset-demo" type="button" class="text-xs font-medium text-red-600 hover:underline">
+          Zurücksetzen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bestätigungs-Dialog (ersetzt window.confirm) -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/15 backdrop-blur-[1px] p-4">
+    <div class="bg-surface border border-line rounded-2xl shadow-xl w-full max-w-sm p-5 space-y-4">
+      <h4 id="confirm-title" class="text-sm font-semibold text-ink">Bist du sicher?</h4>
+      <p id="confirm-message" class="text-xs text-muted leading-relaxed"></p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="btn-confirm-cancel" type="button" class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-muted hover:bg-zinc-100">Abbrechen</button>
+        <button id="btn-confirm-ok" type="button" class="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-red-600 text-white hover:bg-red-700">Bestätigen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-App Toast Benachrichtigung -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <script>
+    /**
+     * pult. – Minimalistischer Digitaler Schreibtisch (PWA + Mac <-> iPhone/iPad Receiver Bridge)
+     */
+
+    const STORAGE_KEY = 'pult_state_v1';
+    const DEVICE_OVERRIDE_KEY = 'pult_device_mode_override';
+    const BRIDGE_TRANSFER_KEY = 'pult_bridge_last_packet';
+
+    // =========================================================================
+    // 1. AUTOMATISCHE GERÄTEERKENNUNG & MODUS-ROUTING (Top-Level Definitionen)
+    // =========================================================================
+    function detectDevicePlatform() {
+      const ua = navigator.userAgent || '';
+      const platform = navigator.platform || '';
+      const maxTouch = navigator.maxTouchPoints || 0;
+
+      const isIPhone = /iPhone|iPod/i.test(ua);
+      // iPadOS 13+ meldet sich als MacIntel mit TouchPoints > 1
+      const isIPad = /iPad/i.test(ua) || (platform === 'MacIntel' && maxTouch > 1);
+      const isAndroidMobile = /Android/i.test(ua);
+      const isMac = /Mac/i.test(platform) && !isIPad;
+
+      if (isIPhone) return { mode: 'iphone', label: 'iPhone', detail: 'iPhone erkannt · Receiver- & Mobilmodus aktiv' };
+      if (isIPad) return { mode: 'iphone', label: 'iPad', detail: 'iPad erkannt · Receiver- & Tabletmodus aktiv' };
+      if (isAndroidMobile) return { mode: 'iphone', label: 'Mobil', detail: 'Mobiles Gerät erkannt · Receiver-Modus aktiv' };
+      if (isMac) return { mode: 'mac', label: 'Mac', detail: 'macOS erkannt · Sender- & Schreibtischmodus aktiv' };
+      return { mode: 'mac', label: 'Desktop', detail: 'Desktop erkannt · Sender- & Schreibtischmodus aktiv' };
+    }
+
+    const detectedDevice = detectDevicePlatform();
+
+    function getDeviceOverride() {
+      try {
+        const val = localStorage.getItem(DEVICE_OVERRIDE_KEY);
+        if (val === 'mac' || val === 'iphone' || val === 'auto') return val;
+      } catch (e) {}
+      return 'auto';
+    }
+
+    function setDeviceOverride(mode) {
+      try {
+        localStorage.setItem(DEVICE_OVERRIDE_KEY, mode);
+      } catch (e) {}
+      if (typeof state !== 'undefined' && state) {
+        state.deviceOverride = mode === 'auto' ? null : mode;
+      }
+    }
+
+    function getEffectiveDeviceMode() {
+      // 1. URL-Parameter prüfen (?mode=receiver | ?mode=sender | ?pair=...)
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const urlMode = (params.get('mode') || '').toLowerCase();
+        if (urlMode === 'receiver' || urlMode === 'iphone' || urlMode === 'ios') return 'iphone';
+        if (urlMode === 'sender' || urlMode === 'mac') return 'mac';
+        if (params.get('pair')) return 'iphone';
+      } catch (e) {}
+
+      // 2. Manueller Nutzer-Override aus localStorage
+      const override = getDeviceOverride();
+      if (override === 'mac' || override === 'iphone') return override;
+
+      // 3. Automatische Plattform-Erkennung
+      return detectedDevice.mode;
+    }
+
+    // Alias für eventuelle Aufrufe
+    function getDeviceMode() {
+      return getEffectiveDeviceMode();
+    }
+
+    // =========================================================================
+    // 2. PWA MANIFEST, APPLE-TOUCH-ICON & SERVICE WORKER (Sandbox-sicher)
+    // =========================================================================
+    function setupPWA() {
+      try {
+        const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#18181B"/><text x="256" y="318" font-family="-apple-system, BlinkMacSystemFont, Inter, sans-serif" font-size="185" font-weight="600" fill="#FBFBF9" text-anchor="middle" letter-spacing="-6">pult.</text></svg>`;
+        const iconDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSvg);
+
+        const touchIcon = document.getElementById('apple-touch-icon-link');
+        if (touchIcon) touchIcon.href = iconDataUrl;
+
+        const baseHref = window.location.href.startsWith('http')
+          ? window.location.href.split('#')[0]
+          : '/';
+
+        const manifestObj = {
+          name: 'pult. – Digitaler Schreibtisch',
+          short_name: 'pult.',
+          description: 'Minimalistische Produktivitäts-App für Notizen, Erinnerungen und Kalender.',
+          start_url: baseHref,
+          display: 'standalone',
+          background_color: '#FBFBF9',
+          theme_color: '#FBFBF9',
+          icons: [
+            { src: iconDataUrl, sizes: '192x192', type: 'image/svg+xml' },
+            { src: iconDataUrl, sizes: '512x512', type: 'image/svg+xml' }
+          ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.getElementById('pwa-manifest-link');
+        if (manifestLink) manifestLink.href = manifestUrl;
+      } catch (e) {
+        // In restriktiven Preview-Sandboxes still ignorieren
+      }
+
+      try {
+        if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+          const swCode = `
+            self.addEventListener('install', (e) => self.skipWaiting());
+            self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+            self.addEventListener('push', (event) => {
+              let data = { title: 'pult.', body: 'Neue Sendung vom Mac' };
+              try { if (event.data) data = event.data.json(); } catch (e) {}
+              event.waitUntil(
+                self.registration.showNotification(data.title || 'pult.', {
+                  body: data.body || '',
+                  tag: 'pult-receiver'
+                })
+              );
+            });
+            self.addEventListener('notificationclick', (event) => {
+              event.notification.close();
+              event.waitUntil(clients.openWindow('/'));
+            });
+          `;
+          const swBlob = new Blob([swCode], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(swBlob);
+          navigator.serviceWorker.register(swUrl).catch(() => {});
+        }
+      } catch (e) {
+        // Blob-SW wird in manchen Browsern/Sandboxes nicht erlaubt -> kein Fehler
+      }
+    }
+
+    // =========================================================================
+    // 3. DATUMS-HELFER & INITIALER ZUSTAND
+    // =========================================================================
+    function getTodayISO() {
+      const now = new Date();
+      if (now.getFullYear() < 2026) {
+        return '2026-11-21';
+      }
+      return formatDateISO(now);
+    }
+
+    function formatDateISO(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function addDaysISO(isoDate, days) {
+      const [y, m, d] = isoDate.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      dt.setDate(dt.getDate() + days);
+      return formatDateISO(dt);
+    }
+
+    function formatGermanDateShort(isoDate) {
+      if (!isoDate) return '';
+      const [y, m, d] = isoDate.split('-').map(Number);
+      return `${String(d).padStart(2, '0')}.${String(m).padStart(2, '0')}.${y}`;
+    }
+
+    function formatGermanDateHeading(isoDate, todayISO) {
+      const [y, m, d] = isoDate.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const weekdays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+      const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+      const base = `${weekdays[dt.getDay()]}, ${d}. ${months[m - 1]}`;
+      if (isoDate === todayISO) return `${base} · Heute`;
+      if (isoDate === addDaysISO(todayISO, 1)) return `${base} · Morgen`;
+      return base;
+    }
+
+    function generateId(prefix = 'id') {
+      return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+    }
+
+    function createInitialState() {
+      const monday = '2026-11-23';
+      const tuesday = '2026-11-24';
+
+      const e1 = 'ent_zahnarzt_rem';
+      const e2 = 'ent_paket_rem';
+      const e3 = 'ent_zahnarzt_cal';
+      const e4 = 'ent_hausaufgaben_rem';
+      const e5 = 'ent_besprechung_cal';
+
+      return {
+        activeDeskId: 'desk_privat',
+        showCompleted: false,
+        deviceId: generateId('dev'),
+        pairedMacId: null,
+        deviceOverride: null,
+        relayUrl: '',
+        receivedLog: [],
+        entries: {
+          [e1]: {
+            id: e1,
+            deskId: 'desk_privat',
+            type: 'reminder',
+            title: 'Zahnarzt anrufen',
+            date: monday,
+            startTime: '09:00',
+            endTime: '',
+            completed: false,
+            notified: false
+          },
+          [e2]: {
+            id: e2,
+            deskId: 'desk_privat',
+            type: 'reminder',
+            title: 'Paket abholen',
+            date: tuesday,
+            startTime: '11:00',
+            endTime: '',
+            completed: false,
+            notified: false
+          },
+          [e3]: {
+            id: e3,
+            deskId: 'desk_privat',
+            type: 'event',
+            title: 'Zahnarzt',
+            date: monday,
+            startTime: '09:00',
+            endTime: '10:00',
+            completed: false,
+            notified: false
+          },
+          [e4]: {
+            id: e4,
+            deskId: 'desk_schule',
+            type: 'reminder',
+            title: 'Hausaufgaben erledigen',
+            date: monday,
+            startTime: '15:00',
+            endTime: '',
+            completed: false,
+            notified: false
+          },
+          [e5]: {
+            id: e5,
+            deskId: 'desk_projekte',
+            type: 'event',
+            title: 'Besprechung',
+            date: monday,
+            startTime: '14:00',
+            endTime: '15:30',
+            completed: false,
+            notified: false
+          }
+        },
+        desks: [
+          {
+            id: 'desk_privat',
+            name: 'Privat',
+            content: `<h1>Privat</h1><p>Ein ruhiger Ort für alles, was im Alltag ansteht. Tippe einfach drauflos oder nutze <code style="font-family:monospace;background:#F4F4F5;padding:1px 5px;border-radius:4px;">@</code> für eine direkte Erinnerung.</p><h2>Nächste Schritte</h2><p>Dringend erledigen: <span class="pult-chip" contenteditable="false" data-entry-id="${e1}" data-type="reminder">@ Zahnarzt anrufen · 23.11.2026 · 09:00</span></p><p>Morgen auf dem Heimweg <span class="pult-chip" contenteditable="false" data-entry-id="${e2}" data-type="reminder">@ Paket abholen · 24.11.2026 · 11:00</span> bei der Poststelle.</p><p>Kontrolltermin im Kalender: <span class="pult-chip" contenteditable="false" data-entry-id="${e3}" data-type="event">@ Zahnarzt · 23.11.2026 · 09:00–10:00</span></p><h2>Einkauf &amp; Haushalt</h2><div class="pult-todo"><input type="checkbox" class="pult-todo-checkbox"><div class="pult-todo-text">Kaffeebohnen und Hafermilch besorgen</div></div><div class="pult-todo"><input type="checkbox" class="pult-todo-checkbox"><div class="pult-todo-text">Blumen auf dem Balkon gießen</div></div>`
+          },
+          {
+            id: 'desk_schule',
+            name: 'Schule',
+            content: `<h1>Schule &amp; Lernen</h1><p>Zusammenfassungen, Abgaben und Prüfungsvorbereitung an einem Ort.</p><h2>Mathematik &amp; Physik</h2><ul><li>Kapitel 4: Differentialrechnung wiederholen</li><li>Formelsammlung für nächste Woche zusammenstellen</li></ul><p>Nicht vergessen: <span class="pult-chip" contenteditable="false" data-entry-id="${e4}" data-type="reminder">@ Hausaufgaben erledigen · 23.11.2026 · 15:00</span></p>`
+          },
+          {
+            id: 'desk_projekte',
+            name: 'Projekte',
+            content: `<h1>Projekte</h1><p>Fokus auf wesentliche Meilensteine ohne überladene Boards.</p><h2>Produkt-Konzept</h2><p>Wichtiger Abstimmungstermin: <span class="pult-chip" contenteditable="false" data-entry-id="${e5}" data-type="event">@ Besprechung · 23.11.2026 · 14:00–15:30</span></p><div class="pult-todo"><input type="checkbox" class="pult-todo-checkbox"><div class="pult-todo-text">Entwurf für die Startseite finalisieren</div></div><div class="pult-todo"><input type="checkbox" class="pult-todo-checkbox"><div class="pult-todo-text">Feedback aus dem Team einarbeiten</div></div>`
+          },
+          {
+            id: 'desk_ideen',
+            name: 'Ideen',
+            content: `<h1>Ideen</h1><p>Freier Gedankenraum für Skizzen, Buchnotizen und spontane Einfälle.</p><ul><li>Wochenendausflug in die Berge planen</li><li>Minimalistisches Rezeptbuch für den Alltag anlegen</li></ul>`
+          }
+        ]
+      };
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return createInitialState();
+        const parsed = JSON.parse(raw);
+        if (!parsed || !Array.isArray(parsed.desks) || parsed.desks.length === 0) {
+          return createInitialState();
+        }
+        if (!parsed.entries || typeof parsed.entries !== 'object') {
+          parsed.entries = {};
+        }
+        if (!parsed.deviceId) {
+          parsed.deviceId = generateId('dev');
+        }
+        return parsed;
+      } catch (err) {
+        return createInitialState();
+      }
+    }
+
+    // Globaler App State
+    let state = loadState();
+
+    // =========================================================================
+    // 4. DOM REFERENZEN & SPEICHER-FUNKTION
+    // =========================================================================
+    const deskTabsEl = document.getElementById('desk-tabs');
+    const deskTitleInput = document.getElementById('desk-title-input');
+    const editorEl = document.getElementById('editor');
+    const remindersListEl = document.getElementById('reminders-list');
+    const calendarListEl = document.getElementById('calendar-list');
+    const toggleShowCompleted = document.getElementById('toggle-show-completed');
+
+    const selectionToolbar = document.getElementById('selection-toolbar');
+    const entryPopover = document.getElementById('entry-popover');
+    const entryTitleInput = document.getElementById('entry-title');
+    const entryDateInput = document.getElementById('entry-date');
+    const entryStartTimeInput = document.getElementById('entry-start-time');
+    const entryEndTimeInput = document.getElementById('entry-end-time');
+    const endTimeWrapper = document.getElementById('end-time-wrapper');
+    const labelStartTime = document.getElementById('label-start-time');
+    const timeFieldsContainer = document.getElementById('time-fields-container');
+    const btnDeleteEntry = document.getElementById('btn-delete-entry');
+
+    let saveTimeout = null;
+    function saveState(immediate = false) {
+      const statusEl = document.getElementById('save-status');
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Speichert …`;
+      }
+
+      const commit = () => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          if (statusEl) {
+            statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500/80"></span> Gespeichert`;
+          }
+        } catch (e) {
+          showToast('Speicherfehler', 'Lokaler Speicherplatz ist voll oder blockiert.');
+        }
+      };
+
+      clearTimeout(saveTimeout);
+      if (immediate) {
+        commit();
+      } else {
+        saveTimeout = setTimeout(commit, 250);
+      }
+    }
+
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function copyTextFallback(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).catch(() => {});
+      }
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      temp.style.position = 'fixed';
+      temp.style.opacity = '0';
+      document.body.appendChild(temp);
+      temp.select();
+      try {
+        document.execCommand('copy');
+      } catch (e) {}
+      document.body.removeChild(temp);
+    }
+
+    // =========================================================================
+    // 5. MAC <-> IPHONE / IPAD RECEIVER-BRÜCKE & GERÄTE-UI
+    // =========================================================================
+    function encodePayloadBase64(obj) {
+      const json = JSON.stringify(obj);
+      return btoa(unescape(encodeURIComponent(json)));
+    }
+
+    function decodePayloadBase64(str) {
+      const json = decodeURIComponent(escape(atob(str)));
+      return JSON.parse(json);
+    }
+
+    function buildReceiverUrl(packet = null) {
+      const baseUrl = window.location.href.split('?')[0].split('#')[0];
+      const macId = state.deviceId || generateId('mac');
+      const params = new URLSearchParams();
+      params.set('mode', 'receiver');
+      params.set('pair', macId);
+
+      const payload = {
+        v: 1,
+        fromMac: macId,
+        ts: Date.now(),
+        packet
+      };
+      return `${baseUrl}?${params.toString()}#receive=${encodePayloadBase64(payload)}`;
+    }
+
+    function renderMatrixQR(container, text) {
+      if (!container) return;
+      const size = 21;
+      let hash = 2166136261;
+      for (let i = 0; i < text.length; i++) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+
+      const isFinder = (r, c) => {
+        const inTopLeft = r < 7 && c < 7;
+        const inTopRight = r < 7 && c >= size - 7;
+        const inBottomLeft = r >= size - 7 && c < 7;
+        if (!inTopLeft && !inTopRight && !inBottomLeft) return null;
+        const lr = inBottomLeft ? r - (size - 7) : r;
+        const lc = inTopRight ? c - (size - 7) : c;
+        if (lr === 0 || lr === 6 || lc === 0 || lc === 6) return true;
+        if (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4) return true;
+        return false;
+      };
+
+      let rects = '';
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const finder = isFinder(r, c);
+          let filled = false;
+          if (finder !== null) {
+            filled = finder;
+          } else {
+            const seed = (hash ^ (r * 37 + c * 91 + text.length)) >>> 0;
+            filled = (seed % 3 === 0) || ((r + c + text.charCodeAt((r * c) % Math.max(1, text.length))) % 5 === 0);
+          }
+          if (filled) {
+            rects += `<rect x="${c}" y="${r}" width="1" height="1" fill="#18181B"/>`;
+          }
+        }
+      }
+      container.innerHTML = `<svg viewBox="0 0 ${size} ${size}" class="w-full h-full" shape-rendering="crispEdges">${rects}</svg>`;
+    }
+
+    function refreshMacReceiverLink() {
+      const url = buildReceiverUrl(null);
+      const input = document.getElementById('receiver-link-input');
+      const qrBox = document.getElementById('receiver-qr-box');
+      if (input) input.value = url;
+      renderMatrixQR(qrBox, url);
+    }
+
+    function updateDeviceUI() {
+      const mode = getEffectiveDeviceMode();
+      const override = getDeviceOverride();
+      const badgeLabel = document.getElementById('device-badge-label');
+      const badgeDot = document.getElementById('device-badge-dot');
+      const detectedInfo = document.getElementById('bridge-detected-info');
+      const macView = document.getElementById('bridge-mac-view');
+      const iosView = document.getElementById('bridge-ios-view');
+
+      if (mode === 'iphone') {
+        badgeLabel.textContent = override === 'iphone' ? 'iPhone (Receiver)' : detectedDevice.label;
+        badgeDot.className = 'w-1.5 h-1.5 rounded-full bg-blue-600';
+        macView.classList.add('hidden');
+        iosView.classList.remove('hidden');
+      } else {
+        badgeLabel.textContent = override === 'mac' ? 'Mac (Sender)' : detectedDevice.label;
+        badgeDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500';
+        macView.classList.remove('hidden');
+        iosView.classList.add('hidden');
+      }
+
+      if (detectedInfo) {
+        detectedInfo.textContent = override !== 'auto'
+          ? `Manuell gewählt: ${mode === 'iphone' ? 'iPhone / iPad Receiver' : 'Mac / Desktop Sender'} (${detectedDevice.detail})`
+          : detectedDevice.detail;
+      }
+
+      document.querySelectorAll('.device-mode-btn').forEach(btn => {
+        const target = btn.getAttribute('data-set-device');
+        const isSelected = target === override;
+        btn.className = isSelected
+          ? 'device-mode-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-ink text-white transition-colors'
+          : 'device-mode-btn px-2.5 py-1 rounded-lg text-xs font-medium text-muted hover:text-ink transition-colors';
+      });
+
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const installGuide = document.getElementById('ios-install-guide');
+      if (installGuide) {
+        installGuide.classList.toggle('hidden', isStandalone);
+      }
+
+      const pairingBadge = document.getElementById('ios-pairing-badge');
+      if (pairingBadge) {
+        pairingBadge.textContent = state.pairedMacId
+          ? `Gekoppelt (${state.pairedMacId.slice(-4).toUpperCase()})`
+          : `Receiver-ID: ${(state.deviceId || 'IOS1').slice(-4).toUpperCase()}`;
+      }
+
+      const iosPushStatus = document.getElementById('ios-push-status');
+      const iosNotifyBtn = document.getElementById('btn-ios-enable-notify');
+      if (iosPushStatus && 'Notification' in window) {
+        if (Notification.permission === 'granted') {
+          iosPushStatus.textContent = 'Aktiv – Mitteilungen erscheinen auf dem Sperrbildschirm.';
+          iosNotifyBtn.textContent = 'Aktiv';
+        } else if (Notification.permission === 'denied') {
+          iosPushStatus.textContent = 'In iOS-Einstellungen blockiert.';
+        }
+      }
+
+      renderReceivedLog();
+    }
+
+    async function sendPacketToIPhone(packet, labelText) {
+      const shareUrl = buildReceiverUrl(packet);
+
+      // Lokale Bridge für zweites Browser-Tab / gleiche Origin speichern
+      try {
+        localStorage.setItem(BRIDGE_TRANSFER_KEY, JSON.stringify({
+          id: generateId('pkt'),
+          fromMac: state.deviceId,
+          ts: Date.now(),
+          packet
+        }));
+      } catch (e) {}
+
+      // 1. Optionales Push-Relay
+      if (state.relayUrl) {
+        try {
+          await fetch(state.relayUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fromMac: state.deviceId,
+              title: `pult. · ${labelText}`,
+              body: packet.summary || labelText,
+              url: shareUrl,
+              packet
+            })
+          });
+          showToast('An iPhone gesendet', `„${labelText}“ wurde über dein Push-Relay verschickt.`, 'blue');
+          return;
+        } catch (err) {}
+      }
+
+      // 2. Natives Teilen-Menü (AirDrop, Nachrichten auf macOS/iOS)
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: `pult. · ${labelText}`,
+            text: `Für deinen iPhone-Schreibtisch: ${labelText}`,
+            url: shareUrl
+          });
+          showToast('Gesendet', `„${labelText}“ wurde zum Teilen übergeben.`, 'blue');
+          return;
+        } catch (e) {
+          if (e.name === 'AbortError') return;
+        }
+      }
+
+      // 3. Fallback: Link kopieren & Bridge-Dialog mit QR-Code öffnen
+      copyTextFallback(shareUrl);
+      const input = document.getElementById('receiver-link-input');
+      const qrBox = document.getElementById('receiver-qr-box');
+      if (input) input.value = shareUrl;
+      renderMatrixQR(qrBox, shareUrl);
+      openBridgeModal();
+      showToast('Sendepaket bereit', 'Link kopiert – einfach per AirDrop/Nachricht ans iPhone schicken oder QR scannen.', 'blue');
+    }
+
+    function processIncomingReceiverParamsAndHash() {
+      const params = new URLSearchParams(window.location.search);
+      const urlMode = (params.get('mode') || '').toLowerCase();
+      const pairId = params.get('pair');
+      const hash = window.location.hash || '';
+
+      let hasProcessed = false;
+
+      if (urlMode === 'receiver' || urlMode === 'iphone' || pairId) {
+        if (pairId) state.pairedMacId = pairId;
+        setDeviceOverride('iphone');
+        hasProcessed = true;
+      }
+
+      if (hash.startsWith('#receive=')) {
+        try {
+          const encoded = hash.slice('#receive='.length);
+          const payload = decodePayloadBase64(encoded);
+          if (payload && payload.fromMac) {
+            state.pairedMacId = payload.fromMac;
+            setDeviceOverride('iphone');
+            if (payload.packet) {
+              ingestReceivedPacket(payload.packet);
+            } else {
+              triggerSystemNotification(
+                'iPhone Receiver gekoppelt',
+                'Bereit für Erinnerungen, Termine und Notizen von deinem Mac.',
+                'blue'
+              );
+            }
+            hasProcessed = true;
+          }
+        } catch (e) {
+          console.warn('Receiver-Paket konnte nicht gelesen werden:', e);
+        }
+      }
+
+      if (hasProcessed) {
+        try {
+          history.replaceState(null, '', window.location.pathname);
+        } catch (e) {}
+        saveState(true);
+      }
+    }
+
+    function ingestReceivedPacket(packet) {
+      if (!packet) return;
+      if (!state.receivedLog) state.receivedLog = [];
+      const timeLabel = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+      if (packet.kind === 'entry' && packet.data) {
+        const incoming = { ...packet.data, id: generateId('ent'), notified: false };
+        let targetDesk = state.desks.find(d => d.name.toLowerCase() === (packet.deskName || '').toLowerCase());
+        if (!targetDesk) {
+          targetDesk = getActiveDesk();
+        }
+        incoming.deskId = targetDesk.id;
+        state.entries[incoming.id] = incoming;
+
+        const chip = document.createElement('span');
+        applyEntryToChipElement(chip, incoming);
+        const p = document.createElement('p');
+        p.appendChild(chip);
+
+        if (targetDesk.id === state.activeDeskId) {
+          editorEl.appendChild(p);
+          targetDesk.content = editorEl.innerHTML;
+        } else {
+          targetDesk.content = (targetDesk.content || '') + p.outerHTML;
+        }
+
+        state.receivedLog.unshift({ time: timeLabel, text: `${incoming.title} (${formatGermanDateShort(incoming.date)}, ${incoming.startTime})` });
+        triggerSystemNotification('Vom Mac empfangen', `${incoming.title} · ${incoming.startTime}`, incoming.type === 'event' ? 'blue' : 'amber');
+      } else if (packet.kind === 'desk' && packet.data) {
+        const newDesk = {
+          id: generateId('desk'),
+          name: `${packet.data.name} (Mac)`,
+          content: packet.data.content || '<p></p>'
+        };
+        state.desks.push(newDesk);
+        if (Array.isArray(packet.entries)) {
+          packet.entries.forEach(ent => {
+            const newId = generateId('ent');
+            const cloned = { ...ent, id: newId, deskId: newDesk.id, notified: false };
+            state.entries[newId] = cloned;
+            newDesk.content = newDesk.content.replaceAll(`data-entry-id="${ent.id}"`, `data-entry-id="${newId}"`);
+          });
+        }
+        switchDesk(newDesk.id);
+        state.receivedLog.unshift({ time: timeLabel, text: `Schreibtisch „${packet.data.name}“ übernommen` });
+        triggerSystemNotification('Schreibtisch empfangen', `„${packet.data.name}“ wurde vom Mac übertragen.`, 'blue');
+      } else if (packet.kind === 'snippet' && packet.text) {
+        const activeDesk = getActiveDesk();
+        const p = document.createElement('p');
+        p.textContent = packet.text;
+        editorEl.appendChild(p);
+        activeDesk.content = editorEl.innerHTML;
+
+        state.receivedLog.unshift({ time: timeLabel, text: `Notiz: „${packet.text.slice(0, 48)}“` });
+        triggerSystemNotification('Notiz vom Mac', packet.text, 'blue');
+      } else if (packet.kind === 'bundle' && Array.isArray(packet.entries)) {
+        const activeDesk = getActiveDesk();
+        packet.entries.forEach(ent => {
+          const newId = generateId('ent');
+          const cloned = { ...ent, id: newId, deskId: activeDesk.id, notified: false };
+          state.entries[newId] = cloned;
+          const chip = document.createElement('span');
+          applyEntryToChipElement(chip, cloned);
+          const p = document.createElement('p');
+          p.appendChild(chip);
+          editorEl.appendChild(p);
+        });
+        activeDesk.content = editorEl.innerHTML;
+        state.receivedLog.unshift({ time: timeLabel, text: `${packet.entries.length} Erinnerungen/Termine vom Mac` });
+        triggerSystemNotification('Vom Mac empfangen', `${packet.entries.length} Einträge wurden übernommen.`, 'blue');
+      }
+
+      renderLists();
+      updateDeviceUI();
+      saveState(true);
+    }
+
+    function renderReceivedLog() {
+      const container = document.getElementById('received-log-list');
+      if (!container) return;
+      const log = state.receivedLog || [];
+      if (log.length === 0) {
+        container.innerHTML = `<p class="py-2 text-subtle">Noch keine Sendungen empfangen.</p>`;
+        return;
+      }
+      container.innerHTML = log.slice(0, 6).map(item => `
+        <div class="flex items-center justify-between gap-2 py-1.5 px-2.5 rounded-lg bg-paper border border-line/60">
+          <span class="text-ink truncate">${escapeHTML(item.text)}</span>
+          <span class="font-mono text-[11px] text-subtle shrink-0">${escapeHTML(item.time)}</span>
+        </div>
+      `).join('');
+    }
+
+    // Echtzeit-Empfang im Receiver-Tab, wenn in einem anderen Tab vom Mac gesendet wird
+    window.addEventListener('storage', (e) => {
+      if (e.key === BRIDGE_TRANSFER_KEY && e.newValue && getEffectiveDeviceMode() === 'iphone') {
+        try {
+          const transfer = JSON.parse(e.newValue);
+          if (transfer && transfer.packet) {
+            ingestReceivedPacket(transfer.packet);
+          }
+        } catch (err) {}
+      }
+    });
+
+    // =========================================================================
+    // 6. SCHREIBTISCHE, EDITOR & BIDIREKTIONALE SYNCHRONISATION
+    // =========================================================================
+    let popoverState = {
+      mode: 'create',
+      entryId: null,
+      type: 'reminder',
+      savedRange: null,
+      atTriggerNode: null,
+      atTriggerOffset: null
+    };
+
+    function getActiveDesk() {
+      let desk = state.desks.find(d => d.id === state.activeDeskId);
+      if (!desk) {
+        desk = state.desks[0];
+        state.activeDeskId = desk.id;
+      }
+      return desk;
+    }
+
+    function formatChipText(entry) {
+      const dateStr = formatGermanDateShort(entry.date);
+      if (entry.type === 'event') {
+        const timeRange = entry.endTime ? `${entry.startTime}–${entry.endTime}` : entry.startTime;
+        return `@ ${entry.title} · ${dateStr} · ${timeRange}`;
+      }
+      return `@ ${entry.title} · ${dateStr} · ${entry.startTime}`;
+    }
+
+    function applyEntryToChipElement(chipEl, entry) {
+      chipEl.setAttribute('contenteditable', 'false');
+      chipEl.setAttribute('data-entry-id', entry.id);
+      chipEl.setAttribute('data-type', entry.type);
+      chipEl.className = `pult-chip${entry.completed ? ' is-done' : ''}`;
+      chipEl.textContent = formatChipText(entry);
+    }
+
+    function syncEntryAcrossAllDesks(entry) {
+      const activeChips = editorEl.querySelectorAll(`.pult-chip[data-entry-id="${entry.id}"]`);
+      activeChips.forEach(chip => applyEntryToChipElement(chip, entry));
+
+      const activeDesk = getActiveDesk();
+      activeDesk.content = editorEl.innerHTML;
+
+      state.desks.forEach(desk => {
+        if (desk.id === activeDesk.id) return;
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = desk.content;
+        const chips = tempDiv.querySelectorAll(`.pult-chip[data-entry-id="${entry.id}"]`);
+        if (chips.length > 0) {
+          chips.forEach(chip => applyEntryToChipElement(chip, entry));
+          desk.content = tempDiv.innerHTML;
+        }
+      });
+    }
+
+    function removeEntryChipFromDesks(entryId, keepText = true) {
+      const entry = state.entries[entryId];
+      const replacementText = keepText && entry ? entry.title : '';
+
+      editorEl.querySelectorAll(`.pult-chip[data-entry-id="${entryId}"]`).forEach(chip => {
+        chip.replaceWith(document.createTextNode(replacementText));
+      });
+      getActiveDesk().content = editorEl.innerHTML;
+
+      state.desks.forEach(desk => {
+        if (desk.id === state.activeDeskId) return;
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = desk.content;
+        const chips = tempDiv.querySelectorAll(`.pult-chip[data-entry-id="${entryId}"]`);
+        if (chips.length > 0) {
+          chips.forEach(chip => chip.replaceWith(document.createTextNode(replacementText)));
+          desk.content = tempDiv.innerHTML;
+        }
+      });
+    }
+
+    function reconcileDeletedChipsInActiveDesk() {
+      const activeDesk = getActiveDesk();
+      const presentIds = new Set(
+        Array.from(editorEl.querySelectorAll('.pult-chip')).map(el => el.getAttribute('data-entry-id'))
+      );
+
+      let changed = false;
+      Object.values(state.entries).forEach(entry => {
+        if (entry.deskId === activeDesk.id && !presentIds.has(entry.id)) {
+          delete state.entries[entry.id];
+          changed = true;
+        }
+      });
+
+      if (changed) {
+        renderLists();
+      }
+    }
+
+    function renderDeskTabs() {
+      deskTabsEl.innerHTML = '';
+      state.desks.forEach(desk => {
+        const isActive = desk.id === state.activeDeskId;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = isActive
+          ? 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-ink text-white shrink-0 transition-colors'
+          : 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-muted hover:text-ink hover:bg-zinc-200/60 shrink-0 transition-colors';
+        btn.textContent = desk.name || 'Unbenannt';
+        btn.addEventListener('click', () => switchDesk(desk.id));
+        deskTabsEl.appendChild(btn);
+      });
+    }
+
+    function switchDesk(deskId) {
+      const current = getActiveDesk();
+      if (current) {
+        current.content = editorEl.innerHTML;
+      }
+
+      state.activeDeskId = deskId;
+      const nextDesk = getActiveDesk();
+      deskTitleInput.value = nextDesk.name;
+      editorEl.innerHTML = nextDesk.content || '';
+      syncTodoCheckboxesFromDOM();
+
+      renderDeskTabs();
+      saveState();
+    }
+
+    function syncTodoCheckboxesFromDOM() {
+      editorEl.querySelectorAll('.pult-todo').forEach(todoRow => {
+        const cb = todoRow.querySelector('.pult-todo-checkbox');
+        if (!cb) return;
+        if (cb.hasAttribute('checked')) {
+          cb.checked = true;
+          todoRow.classList.add('completed');
+        }
+      });
+    }
+
+    function renderLists() {
+      const todayISO = getTodayISO();
+      const allEntries = Object.values(state.entries);
+
+      const dateSet = new Set();
+      for (let i = 0; i < 14; i++) {
+        dateSet.add(addDaysISO(todayISO, i));
+      }
+      allEntries.forEach(e => {
+        if (e.date) dateSet.add(e.date);
+      });
+
+      const sortedDates = Array.from(dateSet).sort();
+
+      // 1. Erinnerungen
+      const reminders = allEntries.filter(e => e.type === 'reminder' && (state.showCompleted || !e.completed));
+      const mobileRemEl = document.getElementById('mobile-rem-count');
+      if (mobileRemEl) mobileRemEl.textContent = reminders.filter(r => !r.completed).length || '';
+
+      remindersListEl.innerHTML = '';
+      sortedDates.forEach(dateISO => {
+        const dayItems = reminders
+          .filter(r => r.date === dateISO)
+          .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+
+        const dayBlock = document.createElement('div');
+        dayBlock.className = 'group';
+
+        const heading = document.createElement('div');
+        heading.className = dayItems.length > 0
+          ? 'text-xs font-semibold text-ink mb-1.5'
+          : 'text-xs font-normal text-subtle py-0.5';
+        heading.textContent = formatGermanDateHeading(dateISO, todayISO);
+        dayBlock.appendChild(heading);
+
+        if (dayItems.length > 0) {
+          const ul = document.createElement('div');
+          ul.className = 'space-y-1.5 pl-0.5';
+
+          dayItems.forEach(item => {
+            const desk = state.desks.find(d => d.id === item.deskId);
+            const row = document.createElement('div');
+            row.className = 'flex items-start justify-between gap-2 py-1 px-2 -mx-2 rounded-lg hover:bg-paper transition-colors';
+
+            const left = document.createElement('div');
+            left.className = 'flex items-start gap-2.5 min-w-0 flex-1';
+
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.checked = !!item.completed;
+            cb.className = 'pult-todo-checkbox mt-0.5';
+            cb.title = 'Erinnerung abhaken';
+            cb.addEventListener('change', (e) => {
+              e.stopPropagation();
+              item.completed = cb.checked;
+              syncEntryAcrossAllDesks(item);
+              saveState();
+              renderLists();
+            });
+
+            const textBtn = document.createElement('button');
+            textBtn.type = 'button';
+            textBtn.className = `text-left text-sm leading-snug truncate ${item.completed ? 'line-through text-subtle' : 'text-ink'}`;
+            textBtn.innerHTML = `<span class="font-mono text-xs text-muted mr-1.5">${escapeHTML(item.startTime)}</span>${escapeHTML(item.title)}`;
+            textBtn.addEventListener('click', () => openEditPopover(item.id));
+
+            left.appendChild(cb);
+            left.appendChild(textBtn);
+
+            const badge = document.createElement('button');
+            badge.type = 'button';
+            badge.title = 'Zum Schreibtisch wechseln';
+            badge.className = 'shrink-0 text-[11px] px-2 py-0.5 rounded-md bg-zinc-100 text-muted hover:text-ink transition-colors';
+            badge.textContent = desk ? desk.name : 'Schreibtisch';
+            badge.addEventListener('click', () => {
+              if (desk) {
+                switchDesk(desk.id);
+                setMobileView('editor');
+              }
+            });
+
+            row.appendChild(left);
+            row.appendChild(badge);
+            ul.appendChild(row);
+          });
+
+          dayBlock.appendChild(ul);
+        }
+
+        remindersListEl.appendChild(dayBlock);
+      });
+
+      // 2. Kalender
+      const events = allEntries.filter(e => e.type === 'event');
+      const mobileCalEl = document.getElementById('mobile-cal-count');
+      if (mobileCalEl) mobileCalEl.textContent = events.length || '';
+
+      calendarListEl.innerHTML = '';
+      sortedDates.forEach(dateISO => {
+        const dayEvents = events
+          .filter(ev => ev.date === dateISO)
+          .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+
+        const dayBlock = document.createElement('div');
+
+        const heading = document.createElement('div');
+        heading.className = dayEvents.length > 0
+          ? 'text-xs font-semibold text-ink mb-1.5'
+          : 'text-xs font-normal text-subtle py-0.5';
+        heading.textContent = formatGermanDateHeading(dateISO, todayISO);
+        dayBlock.appendChild(heading);
+
+        if (dayEvents.length > 0) {
+          const ul = document.createElement('div');
+          ul.className = 'space-y-1.5 pl-0.5';
+
+          dayEvents.forEach(ev => {
+            const desk = state.desks.find(d => d.id === ev.deskId);
+            const row = document.createElement('div');
+            row.className = 'flex items-center justify-between gap-2 py-1 px-2 -mx-2 rounded-lg hover:bg-paper transition-colors';
+
+            const textBtn = document.createElement('button');
+            textBtn.type = 'button';
+            textBtn.className = 'text-left text-sm leading-snug text-ink truncate flex-1';
+            const timeSpan = ev.endTime ? `${ev.startTime}–${ev.endTime}` : ev.startTime;
+            textBtn.innerHTML = `<span class="font-mono text-xs text-blueAccent mr-1.5">${escapeHTML(timeSpan)}</span>${escapeHTML(ev.title)}`;
+            textBtn.addEventListener('click', () => openEditPopover(ev.id));
+
+            const badge = document.createElement('button');
+            badge.type = 'button';
+            badge.title = 'Zum Schreibtisch wechseln';
+            badge.className = 'shrink-0 text-[11px] px-2 py-0.5 rounded-md bg-zinc-100 text-muted hover:text-ink transition-colors';
+            badge.textContent = desk ? desk.name : 'Schreibtisch';
+            badge.addEventListener('click', () => {
+              if (desk) {
+                switchDesk(desk.id);
+                setMobileView('editor');
+              }
+            });
+
+            row.appendChild(textBtn);
+            row.appendChild(badge);
+            ul.appendChild(row);
+          });
+
+          dayBlock.appendChild(ul);
+        }
+
+        calendarListEl.appendChild(dayBlock);
+      });
+    }
+
+    // =========================================================================
+    // 7. POPOVER FÜR ERINNERUNGEN & KALENDEREREIGNISSE
+    // =========================================================================
+    function setPopoverEntryType(type) {
+      popoverState.type = type;
+      document.querySelectorAll('.entry-type-btn').forEach(btn => {
+        const active = btn.getAttribute('data-entry-type') === type;
+        btn.className = active
+          ? 'entry-type-btn py-1.5 px-3 rounded-lg text-xs font-medium bg-white text-ink shadow-xs transition-all'
+          : 'entry-type-btn py-1.5 px-3 rounded-lg text-xs font-medium text-muted hover:text-ink transition-all';
+      });
+
+      if (type === 'event') {
+        endTimeWrapper.classList.remove('hidden');
+        timeFieldsContainer.classList.remove('grid-cols-1');
+        timeFieldsContainer.classList.add('grid-cols-2');
+        labelStartTime.textContent = 'Von';
+      } else {
+        endTimeWrapper.classList.add('hidden');
+        timeFieldsContainer.classList.remove('grid-cols-2');
+        timeFieldsContainer.classList.add('grid-cols-1');
+        labelStartTime.textContent = 'Uhrzeit';
+      }
+    }
+
+    function openCreatePopover({ initialTitle = '', savedRange = null, atNode = null, atOffset = null } = {}) {
+      popoverState = {
+        mode: 'create',
+        entryId: null,
+        type: 'reminder',
+        savedRange,
+        atTriggerNode: atNode,
+        atTriggerOffset: atOffset
+      };
+
+      document.getElementById('popover-heading').textContent = 'Erinnerung oder Termin erstellen';
+      btnDeleteEntry.classList.add('hidden');
+      document.getElementById('btn-send-entry-popover').classList.add('hidden');
+      setPopoverEntryType('reminder');
+
+      entryTitleInput.value = initialTitle.trim();
+      entryDateInput.value = addDaysISO(getTodayISO(), 2);
+      entryStartTimeInput.value = '09:00';
+      entryEndTimeInput.value = '10:00';
+
+      selectionToolbar.classList.add('hidden');
+      entryPopover.classList.remove('hidden');
+      entryPopover.classList.add('flex');
+
+      setTimeout(() => {
+        if (!entryTitleInput.value) {
+          entryTitleInput.focus();
+        } else {
+          entryDateInput.focus();
+        }
+      }, 30);
+    }
+
+    function openEditPopover(entryId) {
+      const entry = state.entries[entryId];
+      if (!entry) return;
+
+      popoverState = {
+        mode: 'edit',
+        entryId: entry.id,
+        type: entry.type,
+        savedRange: null,
+        atTriggerNode: null,
+        atTriggerOffset: null
+      };
+
+      document.getElementById('popover-heading').textContent = 'Eintrag bearbeiten';
+      btnDeleteEntry.classList.remove('hidden');
+      document.getElementById('btn-send-entry-popover').classList.remove('hidden');
+      setPopoverEntryType(entry.type);
+
+      entryTitleInput.value = entry.title;
+      entryDateInput.value = entry.date;
+      entryStartTimeInput.value = entry.startTime || '09:00';
+      entryEndTimeInput.value = entry.endTime || '10:00';
+
+      selectionToolbar.classList.add('hidden');
+      entryPopover.classList.remove('hidden');
+      entryPopover.classList.add('flex');
+    }
+
+    function closeEntryPopover() {
+      entryPopover.classList.add('hidden');
+      entryPopover.classList.remove('flex');
+    }
+
+    function handleSavePopover() {
+      const title = entryTitleInput.value.trim() || 'Ohne Titel';
+      const date = entryDateInput.value || getTodayISO();
+      const startTime = entryStartTimeInput.value || '09:00';
+      const endTime = popoverState.type === 'event' ? (entryEndTimeInput.value || '10:00') : '';
+
+      if (popoverState.mode === 'edit' && popoverState.entryId) {
+        const entry = state.entries[popoverState.entryId];
+        if (entry) {
+          entry.type = popoverState.type;
+          entry.title = title;
+          entry.date = date;
+          entry.startTime = startTime;
+          entry.endTime = endTime;
+          entry.notified = false;
+          syncEntryAcrossAllDesks(entry);
+        }
+      } else {
+        const newId = generateId('ent');
+        const activeDesk = getActiveDesk();
+        const newEntry = {
+          id: newId,
+          deskId: activeDesk.id,
+          type: popoverState.type,
+          title,
+          date,
+          startTime,
+          endTime,
+          completed: false,
+          notified: false
+        };
+        state.entries[newId] = newEntry;
+
+        const chip = document.createElement('span');
+        applyEntryToChipElement(chip, newEntry);
+        const spaceAfter = document.createTextNode('\u00A0');
+
+        if (popoverState.atTriggerNode && popoverState.atTriggerNode.parentNode) {
+          const textNode = popoverState.atTriggerNode;
+          const offset = popoverState.atTriggerOffset;
+          const val = textNode.nodeValue || '';
+          const before = val.slice(0, Math.max(0, offset - 1));
+          const after = val.slice(offset);
+
+          const parent = textNode.parentNode;
+          const beforeNode = document.createTextNode(before);
+          const afterNode = document.createTextNode(after);
+
+          parent.insertBefore(beforeNode, textNode);
+          parent.insertBefore(chip, textNode);
+          parent.insertBefore(spaceAfter, textNode);
+          parent.insertBefore(afterNode, textNode);
+          parent.removeChild(textNode);
+
+          const sel = window.getSelection();
+          const range = document.createRange();
+          range.setStartAfter(spaceAfter);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } else if (popoverState.savedRange) {
+          const range = popoverState.savedRange;
+          range.deleteContents();
+          range.insertNode(spaceAfter);
+          range.insertNode(chip);
+
+          const sel = window.getSelection();
+          const newRange = document.createRange();
+          newRange.setStartAfter(spaceAfter);
+          newRange.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(newRange);
+        } else {
+          const p = document.createElement('p');
+          p.appendChild(chip);
+          p.appendChild(spaceAfter);
+          editorEl.appendChild(p);
+        }
+
+        activeDesk.content = editorEl.innerHTML;
+      }
+
+      closeEntryPopover();
+      saveState(true);
+      renderLists();
+    }
+
+    function handleDeleteEntryFromPopover() {
+      if (popoverState.mode === 'edit' && popoverState.entryId) {
+        const id = popoverState.entryId;
+        removeEntryChipFromDesks(id, true);
+        delete state.entries[id];
+        saveState(true);
+        renderLists();
+      }
+      closeEntryPopover();
+    }
+
+    // =========================================================================
+    // 8. EDITOR-INTERAKTIONEN (@-TRIGGER, MARKDOWN, CHECKBOXEN, SELECTION)
+    // =========================================================================
+    editorEl.addEventListener('input', (e) => {
+      const activeDesk = getActiveDesk();
+      activeDesk.content = editorEl.innerHTML;
+      reconcileDeletedChipsInActiveDesk();
+      saveState();
+
+      if (e.inputType === 'insertText' && e.data === '@') {
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          const node = range.startContainer;
+          const offset = range.startOffset;
+          if (node.nodeType === Node.TEXT_NODE) {
+            const charBefore = (node.nodeValue || '')[offset - 1];
+            const prevChar = (node.nodeValue || '')[offset - 2];
+            if (charBefore === '@' && (!prevChar || /\s/.test(prevChar))) {
+              openCreatePopover({
+                initialTitle: '',
+                atNode: node,
+                atOffset: offset
+              });
+            }
+          }
+        }
+      }
+
+      if (e.inputType === 'insertText' && e.data === ' ') {
+        handleMarkdownShortcuts();
+      }
+    });
+
+    function handleMarkdownShortcuts() {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const range = sel.getRangeAt(0);
+      const node = range.startContainer;
+      if (node.nodeType !== Node.TEXT_NODE) return;
+
+      const text = node.nodeValue || '';
+      const trimmed = text.replace(/\u00A0/g, ' ');
+
+      const blockEl = node.parentElement && node.parentElement.closest('p, div, h1, h2, li');
+      if (!blockEl || blockEl === editorEl) return;
+      if (blockEl.firstChild !== node) return;
+
+      if (trimmed === '# ') {
+        replaceBlockTag(blockEl, 'h1');
+      } else if (trimmed === '## ') {
+        replaceBlockTag(blockEl, 'h2');
+      } else if (trimmed === '- ') {
+        document.execCommand('insertUnorderedList');
+        node.nodeValue = '';
+      } else if (trimmed === '[] ' || trimmed === '[ ] ') {
+        convertBlockToTodo(blockEl);
+      }
+    }
+
+    function replaceBlockTag(blockEl, tagName) {
+      const newEl = document.createElement(tagName);
+      newEl.innerHTML = '<br>';
+      blockEl.replaceWith(newEl);
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.setStart(newEl, 0);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      getActiveDesk().content = editorEl.innerHTML;
+      saveState();
+    }
+
+    function convertBlockToTodo(blockEl, initialText = '') {
+      const todoRow = document.createElement('div');
+      todoRow.className = 'pult-todo';
+      todoRow.innerHTML = `<input type="checkbox" class="pult-todo-checkbox"><div class="pult-todo-text">${initialText || '<br>'}</div>`;
+      blockEl.replaceWith(todoRow);
+
+      const textDiv = todoRow.querySelector('.pult-todo-text');
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.setStart(textDiv, 0);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      getActiveDesk().content = editorEl.innerHTML;
+      saveState();
+    }
+
+    editorEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        const sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+        const anchor = sel.anchorNode;
+        const todoRow = anchor && (anchor.nodeType === 1 ? anchor.closest('.pult-todo') : anchor.parentElement?.closest('.pult-todo'));
+
+        if (todoRow) {
+          e.preventDefault();
+          const textDiv = todoRow.querySelector('.pult-todo-text');
+          const content = (textDiv?.textContent || '').trim();
+
+          if (!content) {
+            const p = document.createElement('p');
+            p.innerHTML = '<br>';
+            todoRow.replaceWith(p);
+            const range = document.createRange();
+            range.setStart(p, 0);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+          } else {
+            const nextTodo = document.createElement('div');
+            nextTodo.className = 'pult-todo';
+            nextTodo.innerHTML = `<input type="checkbox" class="pult-todo-checkbox"><div class="pult-todo-text"><br></div>`;
+            todoRow.after(nextTodo);
+            const nextText = nextTodo.querySelector('.pult-todo-text');
+            const range = document.createRange();
+            range.setStart(nextText, 0);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+          getActiveDesk().content = editorEl.innerHTML;
+          saveState();
+        }
+      }
+    });
+
+    editorEl.addEventListener('click', (e) => {
+      const chip = e.target.closest('.pult-chip');
+      if (chip) {
+        e.preventDefault();
+        const entryId = chip.getAttribute('data-entry-id');
+        if (entryId) openEditPopover(entryId);
+        return;
+      }
+
+      if (e.target.classList.contains('pult-todo-checkbox')) {
+        const cb = e.target;
+        const row = cb.closest('.pult-todo');
+        if (cb.checked) {
+          cb.setAttribute('checked', 'checked');
+          row?.classList.add('completed');
+        } else {
+          cb.removeAttribute('checked');
+          row?.classList.remove('completed');
+        }
+        getActiveDesk().content = editorEl.innerHTML;
+        saveState();
+      }
+    });
+
+    document.addEventListener('selectionchange', () => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || sel.rangeCount === 0) {
+        selectionToolbar.classList.add('hidden');
+        return;
+      }
+
+      const range = sel.getRangeAt(0);
+      if (!editorEl.contains(range.commonAncestorContainer)) {
+        selectionToolbar.classList.add('hidden');
+        return;
+      }
+
+      const selectedText = sel.toString().trim();
+      if (selectedText.length < 2 || selectedText.length > 120) {
+        selectionToolbar.classList.add('hidden');
+        return;
+      }
+
+      const rect = range.getBoundingClientRect();
+      selectionToolbar.style.top = `${Math.max(12, rect.top - 42)}px`;
+      selectionToolbar.style.left = `${Math.min(window.innerWidth - 220, Math.max(12, rect.left + rect.width / 2 - 95))}px`;
+      selectionToolbar.classList.remove('hidden');
+    });
+
+    document.getElementById('btn-selection-create').addEventListener('click', () => {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const range = sel.getRangeAt(0).cloneRange();
+      const text = sel.toString().trim();
+      openCreatePopover({ initialTitle: text, savedRange: range });
+    });
+
+    document.getElementById('btn-insert-entry').addEventListener('click', () => {
+      const sel = window.getSelection();
+      let savedRange = null;
+      let initialTitle = '';
+      if (sel && sel.rangeCount > 0 && editorEl.contains(sel.anchorNode)) {
+        savedRange = sel.getRangeAt(0).cloneRange();
+        initialTitle = sel.toString().trim();
+      }
+      openCreatePopover({ initialTitle, savedRange });
+    });
+
+    document.querySelectorAll('[data-format]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const fmt = btn.getAttribute('data-format');
+        editorEl.focus();
+        if (fmt === 'h1') document.execCommand('formatBlock', false, 'H1');
+        if (fmt === 'h2') document.execCommand('formatBlock', false, 'H2');
+        if (fmt === 'p') document.execCommand('formatBlock', false, 'P');
+        if (fmt === 'bold') document.execCommand('bold');
+        if (fmt === 'italic') document.execCommand('italic');
+        if (fmt === 'ul') document.execCommand('insertUnorderedList');
+        if (fmt === 'todo') {
+          const sel = window.getSelection();
+          const block = sel?.anchorNode?.parentElement?.closest('p, div, h1, h2') || editorEl.lastElementChild;
+          if (block && block !== editorEl && !block.classList.contains('pult-todo')) {
+            convertBlockToTodo(block, block.textContent);
+          } else {
+            const todoRow = document.createElement('div');
+            todoRow.className = 'pult-todo';
+            todoRow.innerHTML = `<input type="checkbox" class="pult-todo-checkbox"><div class="pult-todo-text"><br></div>`;
+            editorEl.appendChild(todoRow);
+          }
+        }
+        getActiveDesk().content = editorEl.innerHTML;
+        saveState();
+      });
+    });
+
+    deskTitleInput.addEventListener('input', () => {
+      const activeDesk = getActiveDesk();
+      activeDesk.name = deskTitleInput.value || 'Unbenannt';
+      renderDeskTabs();
+      renderLists();
+      saveState();
+    });
+
+    document.getElementById('btn-new-desk').addEventListener('click', () => {
+      const newDesk = {
+        id: generateId('desk'),
+        name: `Schreibtisch ${state.desks.length + 1}`,
+        content: `<h1>Neuer Schreibtisch</h1><p></p>`
+      };
+      state.desks.push(newDesk);
+      switchDesk(newDesk.id);
+      deskTitleInput.focus();
+      deskTitleInput.select();
+    });
+
+    document.getElementById('btn-delete-desk').addEventListener('click', () => {
+      if (state.desks.length <= 1) {
+        showToast('Hinweis', 'Mindestens ein Schreibtisch muss bestehen bleiben.');
+        return;
+      }
+      const activeDesk = getActiveDesk();
+      openConfirmDialog(
+        `„${activeDesk.name}“ löschen?`,
+        'Alle Notizen und verknüpften Einträge dieses Schreibtischs werden entfernt.',
+        () => {
+          Object.values(state.entries).forEach(entry => {
+            if (entry.deskId === activeDesk.id) {
+              delete state.entries[entry.id];
+            }
+          });
+          state.desks = state.desks.filter(d => d.id !== activeDesk.id);
+          switchDesk(state.desks[0].id);
+          renderLists();
+          saveState(true);
+        }
+      );
+    });
+
+    // =========================================================================
+    // 9. POPOVER & BRIDGE EVENT LISTENERS
+    // =========================================================================
+    document.querySelectorAll('.entry-type-btn').forEach(btn => {
+      btn.addEventListener('click', () => setPopoverEntryType(btn.getAttribute('data-entry-type')));
+    });
+    document.getElementById('btn-close-popover').addEventListener('click', closeEntryPopover);
+    document.getElementById('btn-cancel-entry').addEventListener('click', closeEntryPopover);
+    document.getElementById('btn-save-entry').addEventListener('click', handleSavePopover);
+    btnDeleteEntry.addEventListener('click', handleDeleteEntryFromPopover);
+
+    document.getElementById('btn-send-entry-popover').addEventListener('click', () => {
+      if (!popoverState.entryId) return;
+      const entry = state.entries[popoverState.entryId];
+      if (!entry) return;
+      const desk = state.desks.find(d => d.id === entry.deskId);
+      closeEntryPopover();
+      sendPacketToIPhone(
+        {
+          kind: 'entry',
+          deskName: desk ? desk.name : 'Privat',
+          summary: `${entry.title} (${formatGermanDateShort(entry.date)}, ${entry.startTime})`,
+          data: entry
+        },
+        entry.title
+      );
+    });
+
+    document.getElementById('btn-send-desk').addEventListener('click', () => {
+      const desk = getActiveDesk();
+      desk.content = editorEl.innerHTML;
+      const linkedEntries = Object.values(state.entries).filter(e => e.deskId === desk.id);
+      sendPacketToIPhone(
+        {
+          kind: 'desk',
+          summary: `Schreibtisch „${desk.name}“`,
+          data: { name: desk.name, content: desk.content },
+          entries: linkedEntries
+        },
+        `Schreibtisch „${desk.name}“`
+      );
+    });
+
+    document.getElementById('btn-selection-send').addEventListener('click', () => {
+      const sel = window.getSelection();
+      const text = sel ? sel.toString().trim() : '';
+      selectionToolbar.classList.add('hidden');
+      if (!text) return;
+      sendPacketToIPhone(
+        { kind: 'snippet', summary: text, text },
+        text.slice(0, 36)
+      );
+    });
+
+    const bridgeModal = document.getElementById('bridge-modal');
+    function openBridgeModal() {
+      refreshMacReceiverLink();
+      updateDeviceUI();
+      const relayInput = document.getElementById('relay-url-input');
+      if (relayInput) relayInput.value = state.relayUrl || '';
+      bridgeModal.classList.remove('hidden');
+      bridgeModal.classList.add('flex');
+    }
+
+    document.getElementById('btn-device-bridge').addEventListener('click', openBridgeModal);
+    document.getElementById('btn-close-bridge').addEventListener('click', () => {
+      bridgeModal.classList.add('hidden');
+      bridgeModal.classList.remove('flex');
+    });
+    bridgeModal.addEventListener('click', (e) => {
+      if (e.target === bridgeModal) {
+        bridgeModal.classList.add('hidden');
+        bridgeModal.classList.remove('flex');
+      }
+    });
+
+    document.querySelectorAll('.device-mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const chosen = btn.getAttribute('data-set-device');
+        setDeviceOverride(chosen);
+        saveState();
+        updateDeviceUI();
+      });
+    });
+
+    document.getElementById('btn-copy-receiver-link').addEventListener('click', () => {
+      const val = document.getElementById('receiver-link-input').value;
+      copyTextFallback(val);
+      showToast('Receiver-Link kopiert', 'Füge ihn auf dem iPhone/iPad ein oder sende ihn per Nachricht.');
+    });
+
+    document.getElementById('btn-share-receiver-link').addEventListener('click', async () => {
+      const url = document.getElementById('receiver-link-input').value;
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'pult. iPhone Receiver',
+            text: 'Öffne pult. auf dem iPhone, um Erinnerungen und Notizen vom Mac zu empfangen:',
+            url
+          });
+          return;
+        } catch (e) {}
+      }
+      copyTextFallback(url);
+      showToast('Link kopiert', 'Dein Browser unterstützt kein direktes AirDrop-Menü – Link wurde kopiert.');
+    });
+
+    document.getElementById('btn-quick-send-desk').addEventListener('click', () => {
+      bridgeModal.classList.add('hidden');
+      bridgeModal.classList.remove('flex');
+      document.getElementById('btn-send-desk').click();
+    });
+
+    document.getElementById('btn-quick-send-upcoming').addEventListener('click', () => {
+      const openEntries = Object.values(state.entries).filter(e => !e.completed);
+      if (openEntries.length === 0) {
+        showToast('Keine offenen Einträge', 'Erstelle zuerst eine Erinnerung mit @.');
+        return;
+      }
+      bridgeModal.classList.add('hidden');
+      bridgeModal.classList.remove('flex');
+      sendPacketToIPhone(
+        {
+          kind: 'bundle',
+          summary: `${openEntries.length} offene Einträge`,
+          entries: openEntries
+        },
+        `${openEntries.length} Erinnerungen & Termine`
+      );
+    });
+
+    document.getElementById('btn-ios-enable-notify').addEventListener('click', async () => {
+      await requestNotificationPermission();
+      updateDeviceUI();
+    });
+
+    document.getElementById('btn-simulate-receive').addEventListener('click', () => {
+      ingestReceivedPacket({
+        kind: 'entry',
+        deskName: 'Privat',
+        data: {
+          type: 'reminder',
+          title: 'Vom Mac geschickt: Unterlagen einpacken',
+          date: addDaysISO(getTodayISO(), 1),
+          startTime: '08:30',
+          endTime: '',
+          completed: false
+        }
+      });
+    });
+
+    document.getElementById('btn-save-relay').addEventListener('click', () => {
+      state.relayUrl = document.getElementById('relay-url-input').value.trim();
+      saveState(true);
+      showToast('Relay gespeichert', state.relayUrl ? 'Push-Relay ist aktiv.' : 'Push-Relay deaktiviert.');
+    });
+
+    document.getElementById('btn-copy-worker-code').addEventListener('click', () => {
+      const workerSnippet = `export default {
+  async fetch(request, env) {
+    if (request.method === 'OPTIONS') return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*' } });
+    if (request.method === 'POST') {
+      const payload = await request.json();
+      await env.PULT_KV.put('latest', JSON.stringify(payload));
+      return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
+    }
+    const latest = await env.PULT_KV.get('latest');
+    return new Response(latest || '{}', { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
+  }
+};`;
+      copyTextFallback(workerSnippet);
+      showToast('Worker-Code kopiert', 'Bereit zum Einfügen in Cloudflare Workers.');
+    });
+
+    entryPopover.addEventListener('click', (e) => {
+      if (e.target === entryPopover) closeEntryPopover();
+    });
+
+    entryTitleInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSavePopover();
+      }
+    });
+
+    toggleShowCompleted.checked = !!state.showCompleted;
+    toggleShowCompleted.addEventListener('change', () => {
+      state.showCompleted = toggleShowCompleted.checked;
+      saveState();
+      renderLists();
+    });
+
+    document.querySelectorAll('.side-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-side-filter');
+        document.querySelectorAll('.side-filter-btn').forEach(b => {
+          b.className = b === btn
+            ? 'side-filter-btn flex-1 py-1.5 text-xs font-medium rounded-lg bg-zinc-100 text-ink transition-colors'
+            : 'side-filter-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-muted hover:text-ink transition-colors';
+        });
+
+        const remPanel = document.getElementById('panel-reminders');
+        const calPanel = document.getElementById('panel-calendar');
+        if (mode === 'both') {
+          remPanel.classList.remove('hidden');
+          calPanel.classList.remove('hidden');
+        } else if (mode === 'reminders') {
+          remPanel.classList.remove('hidden');
+          calPanel.classList.add('hidden');
+        } else {
+          remPanel.classList.add('hidden');
+          calPanel.classList.remove('hidden');
+        }
+      });
+    });
+
+    function setMobileView(view) {
+      if (window.innerWidth >= 1024) return;
+      const editorPanel = document.getElementById('panel-editor');
+      const remPanel = document.getElementById('panel-reminders');
+      const calPanel = document.getElementById('panel-calendar');
+
+      editorPanel.classList.toggle('hidden', view !== 'editor');
+      remPanel.classList.toggle('hidden', view !== 'reminders');
+      calPanel.classList.toggle('hidden', view !== 'calendar');
+
+      document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+        const active = btn.getAttribute('data-mobile-view') === view;
+        btn.className = active
+          ? 'mobile-tab-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-ink bg-white shadow-xs border border-line/60'
+          : 'mobile-tab-btn flex-1 py-1.5 text-xs font-medium rounded-lg text-muted';
+      });
+    }
+
+    document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => setMobileView(btn.getAttribute('data-mobile-view')));
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
+        document.getElementById('panel-editor').classList.remove('hidden');
+        document.getElementById('panel-reminders').classList.remove('hidden');
+        document.getElementById('panel-calendar').classList.remove('hidden');
+      }
+    });
+
+    // =========================================================================
+    // 10. BENACHRICHTIGUNGEN, EINSTELLUNGEN & DIALOGE
+    // =========================================================================
+    function showToast(title, body, accent = 'amber') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'pointer-events-auto bg-surface border border-line rounded-2xl shadow-lg p-4 flex items-start gap-3 transition-all';
+      const dotColor = accent === 'blue' ? 'bg-blue-600' : 'bg-amber-500';
+      toast.innerHTML = `
+        <span class="w-2 h-2 rounded-full ${dotColor} mt-1.5 shrink-0"></span>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold text-ink">${escapeHTML(title)}</p>
+          <p class="text-xs text-muted mt-0.5 leading-relaxed">${escapeHTML(body)}</p>
+        </div>
+        <button type="button" class="text-subtle hover:text-ink text-xs px-1">✕</button>
+      `;
+      toast.querySelector('button').addEventListener('click', () => toast.remove());
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 250);
+      }, 6500);
+    }
+
+    function triggerSystemNotification(title, body, accent = 'amber') {
+      showToast(title, body, accent);
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification(`pult. · ${title}`, { body });
+        } catch (e) {}
+      }
+    }
+
+    function updateNotificationUI() {
+      const bannerBtn = document.getElementById('btn-notify-banner');
+      const statusText = document.getElementById('notification-status-text');
+      const reqBtn = document.getElementById('btn-request-permission');
+
+      if (!('Notification' in window)) {
+        statusText.textContent = 'Browser unterstützt keine System-Mitteilungen (In-App aktiv).';
+        reqBtn.classList.add('hidden');
+        return;
+      }
+
+      if (Notification.permission === 'granted') {
+        bannerBtn.classList.add('hidden');
+        statusText.textContent = 'Aktiviert – du wirst pünktlich erinnert.';
+        reqBtn.textContent = 'Aktiv';
+        reqBtn.disabled = true;
+      } else if (Notification.permission === 'denied') {
+        bannerBtn.classList.add('hidden');
+        statusText.textContent = 'Im Browser blockiert (In-App-Hinweise bleiben aktiv).';
+        reqBtn.classList.add('hidden');
+      } else {
+        bannerBtn.classList.remove('hidden');
+        statusText.textContent = 'Noch nicht erlaubt.';
+        reqBtn.classList.remove('hidden');
+      }
+    }
+
+    async function requestNotificationPermission() {
+      if (!('Notification' in window)) return;
+      try {
+        await Notification.requestPermission();
+        updateNotificationUI();
+      } catch (e) {}
+    }
+
+    document.getElementById('btn-notify-banner').addEventListener('click', requestNotificationPermission);
+    document.getElementById('btn-request-permission').addEventListener('click', requestNotificationPermission);
+    document.getElementById('btn-test-notification').addEventListener('click', () => {
+      triggerSystemNotification('Erinnerung · 09:00', 'Zahnarzt anrufen (Schreibtisch: Privat)', 'amber');
+    });
+
+    setInterval(() => {
+      const now = new Date();
+      const todayStr = formatDateISO(now);
+      const currentHM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      let updated = false;
+      Object.values(state.entries).forEach(entry => {
+        if (entry.notified || entry.completed) return;
+        if (entry.date === todayStr && entry.startTime === currentHM) {
+          entry.notified = true;
+          updated = true;
+          const desk = state.desks.find(d => d.id === entry.deskId);
+          const prefix = entry.type === 'event' ? 'Termin beginnt jetzt' : 'Erinnerung';
+          triggerSystemNotification(
+            `${prefix} · ${entry.startTime}`,
+            `${entry.title}${desk ? ` (${desk.name})` : ''}`,
+            entry.type === 'event' ? 'blue' : 'amber'
+          );
+        }
+      });
+      if (updated) saveState();
+    }, 15000);
+
+    const settingsModal = document.getElementById('settings-modal');
+    document.getElementById('btn-settings').addEventListener('click', () => {
+      updateNotificationUI();
+      settingsModal.classList.remove('hidden');
+      settingsModal.classList.add('flex');
+    });
+    document.getElementById('btn-close-settings').addEventListener('click', () => {
+      settingsModal.classList.add('hidden');
+      settingsModal.classList.remove('flex');
+    });
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) {
+        settingsModal.classList.add('hidden');
+        settingsModal.classList.remove('flex');
+      }
+    });
+
+    document.getElementById('btn-export-json').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pult-backup-${getTodayISO()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Backup erstellt', 'Deine Daten wurden als JSON-Datei heruntergeladen.');
+    });
+
+    document.getElementById('input-import-json').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const imported = JSON.parse(ev.target.result);
+          if (!imported.desks || !imported.entries) throw new Error('Ungültiges Format');
+          state = imported;
+          saveState(true);
+          initApp();
+          settingsModal.classList.add('hidden');
+          settingsModal.classList.remove('flex');
+          showToast('Backup geladen', 'Alle Schreibtische und Einträge wurden wiederhergestellt.');
+        } catch (err) {
+          showToast('Import fehlgeschlagen', 'Die ausgewählte Datei ist kein gültiges pult.-Backup.');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('btn-reset-demo').addEventListener('click', () => {
+      openConfirmDialog(
+        'Beispieldaten wiederherstellen?',
+        'Deine aktuellen Notizen werden durch die ursprünglichen Beispiel-Schreibtische ersetzt.',
+        () => {
+          state = createInitialState();
+          setDeviceOverride('auto');
+          saveState(true);
+          initApp();
+          settingsModal.classList.add('hidden');
+          settingsModal.classList.remove('flex');
+          showToast('Zurückgesetzt', 'Die Beispieldaten wurden geladen.');
+        }
+      );
+    });
+
+    const confirmModal = document.getElementById('confirm-modal');
+    let confirmCallback = null;
+
+    function openConfirmDialog(title, message, onConfirm) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-message').textContent = message;
+      confirmCallback = onConfirm;
+      confirmModal.classList.remove('hidden');
+      confirmModal.classList.add('flex');
+    }
+
+    document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
+      confirmModal.classList.add('hidden');
+      confirmModal.classList.remove('flex');
+      confirmCallback = null;
+    });
+
+    document.getElementById('btn-confirm-ok').addEventListener('click', () => {
+      confirmModal.classList.add('hidden');
+      confirmModal.classList.remove('flex');
+      if (confirmCallback) confirmCallback();
+      confirmCallback = null;
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeEntryPopover();
+        bridgeModal.classList.add('hidden');
+        bridgeModal.classList.remove('flex');
+        settingsModal.classList.add('hidden');
+        settingsModal.classList.remove('flex');
+        confirmModal.classList.add('hidden');
+        confirmModal.classList.remove('flex');
+      }
+    });
+
+    // =========================================================================
+    // 11. INITIALISIERUNG
+    // =========================================================================
+    function initApp() {
+      setupPWA();
+      const activeDesk = getActiveDesk();
+      deskTitleInput.value = activeDesk.name;
+      editorEl.innerHTML = activeDesk.content || '';
+      syncTodoCheckboxesFromDOM();
+      processIncomingReceiverParamsAndHash();
+      renderDeskTabs();
+      renderLists();
+      updateNotificationUI();
+      updateDeviceUI();
+      if (window.innerWidth < 1024) {
+        setMobileView('editor');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
